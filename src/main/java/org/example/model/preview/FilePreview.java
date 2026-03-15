@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.preview;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,5 +8,4 @@ import lombok.Getter;
 public class FilePreview {
     private final String fileName;
     private final String filePath;
-    private final String content;
 }

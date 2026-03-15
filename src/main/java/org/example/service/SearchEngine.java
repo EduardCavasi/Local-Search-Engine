@@ -1,7 +1,9 @@
 package org.example.service;
 
 import org.example.database.DatabaseConnection;
-import org.example.model.FilePreview;
+import org.example.database.IDataSource;
+import org.example.model.preview.FilePreview;
+import org.example.model.preview.TextualFilePreview;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
 import org.slf4j.Logger;
@@ -16,10 +18,17 @@ import java.util.stream.Collectors;
 
 public class SearchEngine {
     private static final Logger logger = LoggerFactory.getLogger(SearchEngine.class);
-
-
+    private final IDataSource dataSource;
     private static final int PREVIEW_WORDS_BEFORE = 15;
     private static final int PREVIEW_WORDS_AFTER = 15;
+
+    public SearchEngine() {
+        this(DatabaseConnection.getInstance());
+    }
+
+    public SearchEngine(IDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     private SearchQuery buildSearchQuery(SearchParams params) {
         StringBuilder sql = new StringBuilder();
@@ -113,7 +122,7 @@ public class SearchEngine {
 
     public List<FilePreview> executeQuery(SearchParams params) {
         SearchQuery query = buildSearchQuery(params);
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(query.getSql())) {
             query.bindParameters(ps);
             try (ResultSet rs = ps.executeQuery()) {
@@ -139,7 +148,7 @@ public class SearchEngine {
                     ? parentPath + File.separator + fileName
                     : (fileName != null ? fileName : "");
 
-            previews.add(new FilePreview(
+            previews.add(new TextualFilePreview(
                     fileName != null ? fileName : "",
                     filePath,
                     contentSnippet != null ? contentSnippet : ""

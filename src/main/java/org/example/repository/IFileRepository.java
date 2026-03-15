@@ -2,8 +2,8 @@ package org.example.repository;
 
 import java.util.Optional;
 
-public interface IFileRepository<Id, File>{
-    Optional<Long> save(File file);
+public interface IFileRepository<Id, E> {
+    Optional<Id> save(E entity);
     boolean delete(Id id);
-    Long update(File file);
+    Id update(E entity);
 }

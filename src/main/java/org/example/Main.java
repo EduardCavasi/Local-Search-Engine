@@ -1,7 +1,8 @@
 package org.example;
 
-import org.example.model.FilePreview;
+import org.example.model.preview.FilePreview;
 import org.example.model.TextualFileInfo;
+import org.example.model.preview.TextualFilePreview;
 import org.example.model.search.SearchParams;
 import org.example.repository.TextualFileRepository;
 import org.example.service.FileCrawler;
@@ -17,7 +18,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException {
         FileCrawler crawler = new FileCrawler();
-        crawler.crawl(Path.of("C:\\polibooks\\an3\\sem2\\software_engineering\\project\\search_engine_core\\src"));
+        crawler.crawl(Path.of("src"));
         SearchParams params = SearchParams.builder()
                 .needsContent(true)
                 .setQueryContent("ana are mere")
@@ -26,7 +27,9 @@ public class Main {
         List<FilePreview> previews = se.executeQuery(params);
         for (FilePreview preview : previews) {
             System.out.println(preview.getFilePath());
-            System.out.println(preview.getContent());
+            if (preview instanceof TextualFilePreview) {
+                System.out.println(((TextualFilePreview)preview).getContent());
+            }
             System.out.println();
         }
     }
