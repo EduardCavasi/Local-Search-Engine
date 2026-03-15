@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.model.TextualFileInfo;
+import org.example.repository.TextualFileRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +18,7 @@ public class Main {
 
         File file = filePath.toFile();
         TextualFileInfo info = new TextualFileInfo(file, attrs);
-        System.out.println(info.getFileName());
-        System.out.println(info.getFileExtension());
-        System.out.println(info.getParentDirectoryPath());
-        System.out.println(info.getContent());
-        System.out.println(info.getMetadata().getSize());
+        TextualFileRepository repo = new TextualFileRepository();
+        repo.save(info);
     }
 }
