@@ -1,22 +1,30 @@
 package org.example.repository.persistence;
 
+import org.example.model.FileInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class FileInfoPersistence {
-
+public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
+    private static final Logger logger = LoggerFactory.getLogger(FileInfoPersistence.class);
     private static final String INSERT_SQL =
             "INSERT INTO file_info (parent_directory_path, file_type, file_extension, file_name) VALUES (?, ?, ?, ?)";
-
-    public Optional<Long> save(Connection conn, String parentDirectoryPath, int fileType, String fileExtension, String fileName) throws SQLException {
+    private static final String DELETE_SQL =
+            "DELETE FROM file_info WHERE file_info.file_id = ?";
+    private static final String UPDATE_SQL =
+            "UPDATE file_info SET parent_directory_path = ?, file_type = ?, file_extension = ?, file_name = ? WHERE file_info.file_id = ?";
+    @Override
+    public Optional<Long> save(Connection conn, Long id,  FileInfo fileInfo) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, parentDirectoryPath);
-            stmt.setInt(2, fileType);
-            stmt.setString(3, fileExtension);
-            stmt.setString(4, fileName);
+            stmt.setString(1, fileInfo.getParentDirectoryPath());
+            stmt.setInt(2, fileInfo.getFileType().ordinal());
+            stmt.setString(3, fileInfo.getFileExtension());
+            stmt.setString(4, fileInfo.getFileName());
             int affected = stmt.executeUpdate();
             if (affected == 0) {
                 return Optional.empty();
@@ -28,5 +36,35 @@ public class FileInfoPersistence {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public boolean delete(Connection conn, Long id) throws SQLException {
+        try(PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)){
+            stmt.setLong(1, id);
+            int affected = stmt.executeUpdate();
+            if (affected == 0) {
+                logger.warn("Delete from table file_info had no effect!");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean update(Connection conn, Long id, FileInfo fileInfo) throws SQLException {
+        try(PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)){
+            stmt.setString(1, fileInfo.getParentDirectoryPath());
+            stmt.setInt(2, fileInfo.getFileType().ordinal());
+            stmt.setString(3, fileInfo.getFileExtension());
+            stmt.setString(4, fileInfo.getFileName());
+            stmt.setLong(5, id);
+            int affected = stmt.executeUpdate();
+            if (affected == 0) {
+                logger.warn("Update table file_info had no effect!");
+                return false;
+            }
+        }
+        return true;
     }
 }

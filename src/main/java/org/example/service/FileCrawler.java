@@ -1,12 +1,10 @@
 package org.example.service;
 
 import org.example.model.TextualFileInfo;
-import org.example.repository.IFileRepository;
-import org.example.repository.TextualFileRepository;
+import org.example.repository.FileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -15,10 +13,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class FileCrawler {
-    private Logger logger = LoggerFactory.getLogger(FileCrawler.class);
-    private final TextualFileRepository textualFileRepository;
+    private final Logger logger = LoggerFactory.getLogger(FileCrawler.class);
+    private final FileRepository<TextualFileInfo, String> textualFileRepository;
     public FileCrawler() {
-        textualFileRepository = new TextualFileRepository();
+        textualFileRepository = FileRepository.textual();
     }
 
     public void crawl(Path root) {

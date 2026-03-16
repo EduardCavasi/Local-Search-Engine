@@ -16,6 +16,7 @@ public class TextualFileInfo extends FileInfo {
     public TextualFileInfo(File file, BasicFileAttributes attr) {
         super(file, attr);
         this.content = this.readContent(file);
+        super.setFileType(FileType.TEXTUAL_FILE);
         logger.info("Created textual file object " + file.getAbsolutePath());
     }
     private String readContent(File file) {

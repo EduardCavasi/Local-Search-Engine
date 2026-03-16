@@ -1,18 +1,13 @@
 package org.example;
 
 import org.example.model.preview.FilePreview;
-import org.example.model.TextualFileInfo;
 import org.example.model.preview.TextualFilePreview;
 import org.example.model.search.SearchParams;
-import org.example.repository.TextualFileRepository;
 import org.example.service.FileCrawler;
 import org.example.service.SearchEngine;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 public class Main {

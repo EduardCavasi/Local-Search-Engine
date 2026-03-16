@@ -15,6 +15,7 @@ public class FileInfo {
     private String parentDirectoryPath;
     private Metadata metadata;
     private String fileExtension;
+    private FileType fileType;
 
     public FileInfo(File file, BasicFileAttributes attr) {
         this.fileName = file.getName();
