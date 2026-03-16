@@ -22,7 +22,7 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
     public Optional<Long> save(Connection conn, Long id,  FileInfo fileInfo) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, fileInfo.getParentDirectoryPath());
-            stmt.setInt(2, fileInfo.getFileType().ordinal());
+            stmt.setString(2, fileInfo.getFileType().name());
             stmt.setString(3, fileInfo.getFileExtension());
             stmt.setString(4, fileInfo.getFileName());
             int affected = stmt.executeUpdate();
@@ -55,7 +55,7 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
     public boolean update(Connection conn, Long id, FileInfo fileInfo) throws SQLException {
         try(PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)){
             stmt.setString(1, fileInfo.getParentDirectoryPath());
-            stmt.setInt(2, fileInfo.getFileType().ordinal());
+            stmt.setString(2, fileInfo.getFileType().name());
             stmt.setString(3, fileInfo.getFileExtension());
             stmt.setString(4, fileInfo.getFileName());
             stmt.setLong(5, id);

@@ -1,36 +1,24 @@
-package org.example.service;
+package org.example.service.file_search;
 
-import org.example.database.DatabaseConnection;
-import org.example.database.IDataSource;
-import org.example.model.preview.FilePreview;
-import org.example.model.preview.TextualFilePreview;
+import lombok.NoArgsConstructor;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.attribute.FileTime;
-import java.sql.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SearchEngine {
-    private static final Logger logger = LoggerFactory.getLogger(SearchEngine.class);
-    private final IDataSource dataSource;
+@NoArgsConstructor
+public class QueryBuilder {
+    private static final Logger logger = LoggerFactory.getLogger(QueryBuilder.class);
     private static final int PREVIEW_WORDS_BEFORE = 15;
     private static final int PREVIEW_WORDS_AFTER = 15;
 
-    public SearchEngine() {
-        this(DatabaseConnection.getInstance());
-    }
-
-    public SearchEngine(IDataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    private SearchQuery buildSearchQuery(SearchParams params) {
+    public SearchQuery buildSearchQuery(SearchParams params) {
         StringBuilder sql = new StringBuilder();
         boolean contentSearchWithQuery = params.isNeedsContent()
                 && params.getQueryContent() != null && !params.getQueryContent().trim().isEmpty();
@@ -120,53 +108,4 @@ public class SearchEngine {
         return fileTime == null ? null : new Timestamp(fileTime.toMillis());
     }
 
-    public List<FilePreview> executeQuery(SearchParams params) {
-        SearchQuery query = buildSearchQuery(params);
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query.getSql())) {
-            query.bindParameters(ps);
-            try (ResultSet rs = ps.executeQuery()) {
-                return buildPreviews(rs);
-            }
-        } catch (SQLException e) {
-            logger.error("Search failed: {}", e.getMessage());
-        }
-        return new ArrayList<>();
-    }
-
-    private List<FilePreview> buildPreviews(ResultSet rs) throws SQLException {
-        List<FilePreview> previews = new ArrayList<>();
-        while (rs.next()) {
-            String fileName = getString(rs, "file_name");
-            String parentPath = getString(rs, "parent_directory_path");
-            String contentSnippet = getString(rs, "preview_content");
-
-            contentSnippet = stripHeadlineMarkup(contentSnippet);
-            
-
-            String filePath = (parentPath != null && fileName != null)
-                    ? parentPath + File.separator + fileName
-                    : (fileName != null ? fileName : "");
-
-            previews.add(new TextualFilePreview(
-                    fileName != null ? fileName : "",
-                    filePath,
-                    contentSnippet != null ? contentSnippet : ""
-            ));
-        }
-        return previews;
-    }
-
-    private static String stripHeadlineMarkup(String headline) {
-        if (headline == null) return "";
-        return headline.replaceAll("<[^>]+>", "").replaceAll("&([^;]+);", " ").trim();
-    }
-
-    private static String getString(ResultSet rs, String columnLabel) {
-        try {
-            return rs.getString(columnLabel);
-        } catch (SQLException e) {
-            return null;
-        }
-    }
 }

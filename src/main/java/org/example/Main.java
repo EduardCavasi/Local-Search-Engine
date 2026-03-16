@@ -3,8 +3,8 @@ package org.example;
 import org.example.model.preview.FilePreview;
 import org.example.model.preview.TextualFilePreview;
 import org.example.model.search.SearchParams;
-import org.example.service.FileCrawler;
-import org.example.service.SearchEngine;
+import org.example.service.file_save.FileCrawler;
+import org.example.service.file_search.SearchEngine;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,7 +19,7 @@ public class Main {
                 .setQueryContent("ana are mere")
                 .build();
         SearchEngine se = new SearchEngine();
-        List<FilePreview> previews = se.executeQuery(params);
+        List<FilePreview> previews = se.executeQuery(params).get();
         for (FilePreview preview : previews) {
             System.out.println(preview.getFilePath());
             if (preview instanceof TextualFilePreview) {
