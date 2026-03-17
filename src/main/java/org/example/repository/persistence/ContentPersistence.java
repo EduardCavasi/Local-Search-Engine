@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -16,7 +17,8 @@ public class ContentPersistence implements IPersistence<Long, String> {
             "DELETE FROM content_info WHERE file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE content_info SET raw_content = ? WHERE file_id = ?";
-
+    private static final String GET_BY_ID_SQL =
+            "SELECT * FROM content_info WHERE file_id = ?";
     @Override
     public Optional<Long> save(Connection conn, Long id, String rawContent) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
@@ -55,5 +57,18 @@ public class ContentPersistence implements IPersistence<Long, String> {
             }
         }
         return true;
+    }
+
+    @Override
+    public Optional<String> getById(Connection conn, Long id) throws SQLException {
+        try(PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_SQL)) {
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()) {
+                String content = rs.getString("raw_content");
+                return Optional.of(content);
+            }
+            return Optional.empty();
+        }
     }
 }

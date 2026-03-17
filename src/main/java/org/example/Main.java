@@ -15,8 +15,7 @@ public class Main {
         FileCrawler crawler = new FileCrawler();
         crawler.crawl(Path.of("src"));
         SearchParams params = SearchParams.builder()
-                .needsContent(true)
-                .setQueryContent("ana are mere")
+                .setQueryFileExtension("java")
                 .build();
         SearchEngine se = new SearchEngine();
         List<FilePreview> previews = se.executeQuery(params).get();

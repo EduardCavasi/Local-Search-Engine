@@ -51,6 +51,23 @@ public class SearchParamsBuilder {
         return this;
     }
 
+    public SearchParamsBuilder setGreaterSize(boolean greaterSize) {
+        searchParams.setGreaterSize(greaterSize);
+        return this;
+    }
+    public SearchParamsBuilder setLastAccessedAfter(boolean lastAccessedAfter) {
+        searchParams.setLastAccessedAfter(lastAccessedAfter);
+        return this;
+    }
+    public SearchParamsBuilder setCreatedAfter(boolean createdAfter) {
+        searchParams.setCreatedAfter(createdAfter);
+        return this;
+    }
+    public SearchParamsBuilder setLastModifiedAfter(boolean lastModifiedAfter) {
+        searchParams.setLastModifiedAfter(lastModifiedAfter);
+        return this;
+    }
+
     public SearchParams build(){
         return this.searchParams;
     }

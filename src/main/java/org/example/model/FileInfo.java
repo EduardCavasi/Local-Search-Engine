@@ -23,4 +23,11 @@ public class FileInfo {
         this.fileExtension = this.fileName.substring(this.fileName.lastIndexOf(".") + 1);
         this.metadata = new Metadata(attr);
     }
+
+    public FileInfo(String fileName, String parentDirectoryPath, String fileExtension, FileType fileType) {
+        this.fileName = fileName;
+        this.parentDirectoryPath = parentDirectoryPath;
+        this.fileExtension = fileExtension;
+        this.fileType = fileType;
+    }
 }

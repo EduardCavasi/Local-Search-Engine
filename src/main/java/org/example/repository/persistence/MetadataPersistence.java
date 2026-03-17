@@ -4,10 +4,8 @@ import org.example.model.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.nio.file.attribute.FileTime;
+import java.sql.*;
 import java.util.Optional;
 
 public class MetadataPersistence implements IPersistence<Long, Metadata> {
@@ -19,6 +17,8 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
             "DELETE FROM metadata WHERE file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE metadata SET creation_time = ?, file_key = ?, regular_file = ?, symbolic_link = ?, other_file = ?, last_access_time = ?, last_modified_time = ?, size = ? WHERE file_id = ?";
+    private static final String GET_BY_ID_SQL =
+            "SELECT * from metadata WHERE file_id = ?";
     @Override
     public Optional<Long> save(Connection conn, Long id, Metadata metadata) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
@@ -71,5 +71,28 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
             }
         }
         return true;
+    }
+
+    @Override
+    public Optional<Metadata> getById(Connection conn, Long id) throws SQLException {
+        try(PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_SQL)){
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+
+                Metadata metadata = new Metadata(
+                        FileTime.fromMillis(rs.getTime("creation_time").getTime()),
+                        FileTime.fromMillis(rs.getTime("last_modified_time").getTime()),
+                        FileTime.fromMillis(rs.getTime("last_access_time").getTime()),
+                        rs.getLong("size"),
+                        rs.getBoolean("regular_file"),
+                        rs.getBoolean("symbolic_link"),
+                        rs.getBoolean("other_file"),
+                        (Object)rs.getString("file_key")
+                );
+                return Optional.of(metadata);
+            }
+            return Optional.empty();
+        }
     }
 }

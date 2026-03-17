@@ -77,19 +77,39 @@ public class QueryBuilder {
             return;
         }
         if (params.getQuerySize() != null && params.getQuerySize() != -1L) {
-            conditions.add("metadata.size = ?");
+            if(params.isGreaterSize()) {
+                conditions.add("metadata.size > ?");
+            }
+            else{
+                conditions.add("metadata.size < ?");
+            }
             parameters.add(params.getQuerySize());
         }
         if (params.getQueryCreated() != null) {
-            conditions.add("metadata.creation_time = ?");
+            if(params.isCreatedAfter()) {
+                conditions.add("metadata.creation_time > ?");
+            }
+            else{
+                conditions.add("metadata.creation_time < ?");
+            }
             parameters.add(toTimestamp(params.getQueryCreated()));
         }
         if (params.getQueryLastModified() != null) {
-            conditions.add("metadata.last_modified_time = ?");
+            if(params.isLastModifiedAfter()) {
+                conditions.add("metadata.last_modified_time > ?");
+            }
+            else{
+                conditions.add("metadata.last_modified_time < ?");
+            }
             parameters.add(toTimestamp(params.getQueryLastModified()));
         }
         if (params.getQueryLastAccessed() != null) {
-            conditions.add("metadata.last_access_time = ?");
+            if(params.isLastAccessedAfter()) {
+                conditions.add("metadata.last_access_time > ?");
+            }
+            else{
+                conditions.add("metadata.last_access_time < ?");
+            }
             parameters.add(toTimestamp(params.getQueryLastAccessed()));
         }
     }

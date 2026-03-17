@@ -14,9 +14,13 @@ public class SearchParams {
     private String queryFileExtension;
     private String queryFilePath;
     private boolean needsMetadata;
+    private boolean greaterSize = true;
     private Long querySize = -1L;
+    private boolean lastModifiedAfter = true;
     private FileTime queryLastModified;
+    private boolean createdAfter = true;
     private FileTime queryCreated;
+    private boolean lastAccessedAfter = true;
     private FileTime queryLastAccessed;
     private boolean needsContent;
     private String queryContent;

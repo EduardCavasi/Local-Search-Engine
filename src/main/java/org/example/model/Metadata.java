@@ -1,11 +1,13 @@
 package org.example.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 
+@AllArgsConstructor
 @Getter
 @Setter
 public class Metadata {

@@ -1,6 +1,7 @@
 package org.example.repository.persistence;
 
 import org.example.model.FileInfo;
+import org.example.model.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
+public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileInfoRetrieval<Long, FileInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoPersistence.class);
     private static final String INSERT_SQL =
             "INSERT INTO file_info (parent_directory_path, file_type, file_extension, file_name) VALUES (?, ?, ?, ?)";
@@ -18,6 +19,10 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
             "DELETE FROM file_info WHERE file_info.file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE file_info SET parent_directory_path = ?, file_type = ?, file_extension = ?, file_name = ? WHERE file_info.file_id = ?";
+    private static final String RETRIEVAL_SQL =
+            "SELECT file_id from file_info WHERE file_info.parent_directory_path = ? AND file_name = ?";
+    private static final String GET_BY_ID_SQL =
+            "SELECT * from file_info WHERE file_info.file_id = ?";
     @Override
     public Optional<Long> save(Connection conn, Long id,  FileInfo fileInfo) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -66,5 +71,36 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
             }
         }
         return true;
+    }
+
+    @Override
+    public Optional<FileInfo> getById(Connection conn, Long id) throws SQLException {
+        try(PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_SQL)){
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                FileInfo fileInfo = new FileInfo(
+                        rs.getString("file_name"),
+                        rs.getString("parent_directory_path"),
+                        rs.getString("file_extension"),
+                        FileType.valueOf(rs.getString("file_type"))
+                );
+                return Optional.of(fileInfo);
+            }
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Long> getEntityId(Connection conn, FileInfo entity) throws SQLException {
+        try(PreparedStatement stmt = conn.prepareStatement(RETRIEVAL_SQL)){
+            stmt.setString(1, entity.getParentDirectoryPath());
+            stmt.setString(2, entity.getFileName());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return Optional.of(rs.getLong(1));
+            }
+            return Optional.empty();
+        }
     }
 }

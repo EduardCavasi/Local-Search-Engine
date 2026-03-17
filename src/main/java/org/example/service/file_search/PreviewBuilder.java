@@ -5,16 +5,19 @@ import lombok.NoArgsConstructor;
 import org.example.model.FileType;
 import org.example.model.preview.FilePreview;
 import org.example.model.preview.TextualFilePreview;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 @NoArgsConstructor
 public class PreviewBuilder {
-
+    private static final Logger logger = LoggerFactory.getLogger(PreviewBuilder.class);
     public List<FilePreview> buildPreviews(ResultSet rs) throws SQLException {
         List<FilePreview> previews = new ArrayList<>();
         while (rs.next()) {
@@ -33,16 +36,56 @@ public class PreviewBuilder {
 
         contentSnippet = stripHeadlineMarkup(contentSnippet);
 
-
         String filePath = (parentPath != null && fileName != null)
                 ? parentPath + File.separator + fileName
                 : (fileName != null ? fileName : "");
 
+        if(contentSnippet.isEmpty()){
+            contentSnippet = getTextPreview(filePath, 30);
+        }
+
         return new TextualFilePreview(
                 fileName != null ? fileName : "",
                 filePath,
-                contentSnippet != null ? contentSnippet : ""
+                contentSnippet
         );
+    }
+
+    public String getTextPreview(String filePath, int wordLimit) {
+        StringBuilder result = new StringBuilder();
+
+        try (Reader reader = new BufferedReader(new FileReader(filePath))) {
+            int ch;
+            int wordCount = 0;
+            boolean inWord = false;
+
+            while ((ch = reader.read()) != -1) {
+                char c = (char) ch;
+                result.append(c);
+
+                if (Character.isWhitespace(c)) {
+                    if (inWord) {
+                        wordCount++;
+                        inWord = false;
+
+                        if (wordCount >= wordLimit) {
+                            break;
+                        }
+                    }
+                } else {
+                    inWord = true;
+                }
+            }
+
+            if (inWord && wordCount < wordLimit) {
+                wordCount++;
+            }
+        }
+        catch (IOException ex) {
+            logger.warn(ex.getMessage());
+        }
+
+        return result.toString();
     }
 
     private static String stripHeadlineMarkup(String headline) {
