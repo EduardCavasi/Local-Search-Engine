@@ -3,6 +3,7 @@ package org.example.repository;
 import org.example.database.DatabaseConnection;
 import org.example.database.IDataSource;
 import org.example.model.FileInfo;
+import org.example.model.FileType;
 import org.example.model.Metadata;
 import org.example.repository.persistence.FileInfoPersistence;
 import org.example.repository.persistence.IPersistence;
@@ -11,13 +12,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.nio.file.attribute.FileTime;
 
 public class FileInfoGetter implements IFileInfoGetter {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoGetter.class);
+    private static final String GET_ALL_WITH_METADATA_SQL = """
+            SELECT
+                fi.file_id AS file_id,
+                fi.file_name AS file_name,
+                fi.parent_directory_path AS parent_directory_path,
+                fi.file_extension AS file_extension,
+                fi.file_type AS file_type,
+                m.creation_time AS creation_time,
+                m.last_modified_time AS last_modified_time,
+                m.last_access_time AS last_access_time,
+                m.size AS size,
+                m.regular_file AS regular_file,
+                m.symbolic_link AS symbolic_link,
+                m.other_file AS other_file,
+                m.file_key AS file_key
+            FROM file_info fi
+            JOIN metadata m ON fi.file_id = m.file_id
+            """;
+    private static final String GET_BY_ID_WITH_METADATA_SQL = GET_ALL_WITH_METADATA_SQL + "\nWHERE fi.file_id = ?";
     private final IDataSource dataSource;
     private final FileInfoPersistence fileInfoPersistence;
     private final IPersistence<Long, Metadata> metadataPersistence;
@@ -46,18 +70,37 @@ public class FileInfoGetter implements IFileInfoGetter {
 
     @Override
     public Optional<FileInfo> getById(Long id) {
-        try(Connection conn = dataSource.getConnection()){
-            Optional<FileInfo> fileInfoOptional = fileInfoPersistence.getById(conn, id);
-            Optional<Metadata> metadataOptional = metadataPersistence.getById(conn, id);
-            if(fileInfoOptional.isEmpty() || metadataOptional.isEmpty()) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_WITH_METADATA_SQL)) {
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (!rs.next()) {
                 return Optional.empty();
             }
-            FileInfo fileInfo = fileInfoOptional.get();
-            Metadata metadata = metadataOptional.get();
+
+            FileInfo fileInfo = new FileInfo(
+                    rs.getString("file_name"),
+                    rs.getString("parent_directory_path"),
+                    rs.getString("file_extension"),
+                    FileType.valueOf(rs.getString("file_type"))
+            );
+
+            Timestamp creation = rs.getTimestamp("creation_time");
+            Timestamp lastModified = rs.getTimestamp("last_modified_time");
+            Timestamp lastAccess = rs.getTimestamp("last_access_time");
+            Metadata metadata = new Metadata(
+                    creation == null ? null : FileTime.fromMillis(creation.getTime()),
+                    lastModified == null ? null : FileTime.fromMillis(lastModified.getTime()),
+                    lastAccess == null ? null : FileTime.fromMillis(lastAccess.getTime()),
+                    rs.getLong("size"),
+                    rs.getBoolean("regular_file"),
+                    rs.getBoolean("symbolic_link"),
+                    rs.getBoolean("other_file"),
+                    rs.getString("file_key")
+            );
             fileInfo.setMetadata(metadata);
             return Optional.of(fileInfo);
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             logger.error("Failed to get file by id: {}", e.getMessage());
             return Optional.empty();
         }
@@ -66,32 +109,36 @@ public class FileInfoGetter implements IFileInfoGetter {
     @Override
     public Optional<List<FileInfo>> getAll() {
         try (Connection conn = dataSource.getConnection()) {
-            Optional<List<FileInfo>> fileInfosOptional = fileInfoPersistence.getAll(conn);
-            if (fileInfosOptional.isEmpty()) {
-                return Optional.empty();
-            }
+            try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_WITH_METADATA_SQL)) {
+                ResultSet rs = stmt.executeQuery();
+                List<FileInfo> results = new ArrayList<>();
+                while (rs.next()) {
+                    FileInfo fileInfo = new FileInfo(
+                            rs.getString("file_name"),
+                            rs.getString("parent_directory_path"),
+                            rs.getString("file_extension"),
+                            FileType.valueOf(rs.getString("file_type"))
+                    );
 
-            List<FileInfo> fileInfos = fileInfosOptional.get();
-            List<FileInfo> complete = new ArrayList<>(fileInfos.size());
-            for (FileInfo fileInfo : fileInfos) {
-                Optional<Long> idOptional = fileInfoPersistence.getEntityId(conn, fileInfo);
-                if (idOptional.isEmpty()) {
-                    logger.warn("Skipping file_info row without resolvable id for file {}", fileInfo.getFileName());
-                    continue;
+                    Timestamp creation = rs.getTimestamp("creation_time");
+                    Timestamp lastModified = rs.getTimestamp("last_modified_time");
+                    Timestamp lastAccess = rs.getTimestamp("last_access_time");
+                    Metadata metadata = new Metadata(
+                            creation == null ? null : FileTime.fromMillis(creation.getTime()),
+                            lastModified == null ? null : FileTime.fromMillis(lastModified.getTime()),
+                            lastAccess == null ? null : FileTime.fromMillis(lastAccess.getTime()),
+                            rs.getLong("size"),
+                            rs.getBoolean("regular_file"),
+                            rs.getBoolean("symbolic_link"),
+                            rs.getBoolean("other_file"),
+                            rs.getString("file_key")
+                    );
+                    fileInfo.setMetadata(metadata);
+                    results.add(fileInfo);
                 }
 
-                long id = idOptional.get();
-                Optional<Metadata> metadataOptional = metadataPersistence.getById(conn, id);
-                if (metadataOptional.isEmpty()) {
-                    logger.warn("Skipping file_info id {} because metadata missing", id);
-                    continue;
-                }
-
-                fileInfo.setMetadata(metadataOptional.get());
-                complete.add(fileInfo);
+                return results.isEmpty() ? Optional.empty() : Optional.of(results);
             }
-
-            return complete.isEmpty() ? Optional.empty() : Optional.of(complete);
         } catch (SQLException e) {
             logger.error("Failed to get all files: {}", e.getMessage());
             return Optional.empty();

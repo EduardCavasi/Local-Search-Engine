@@ -78,42 +78,6 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileI
     }
 
     @Override
-    public Optional<FileInfo> getById(Connection conn, Long id) throws SQLException {
-        try(PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_SQL)){
-            stmt.setLong(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                FileInfo fileInfo = new FileInfo(
-                        rs.getString("file_name"),
-                        rs.getString("parent_directory_path"),
-                        rs.getString("file_extension"),
-                        FileType.valueOf(rs.getString("file_type"))
-                );
-                return Optional.of(fileInfo);
-            }
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<List<FileInfo>> getAll(Connection conn) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_SQL)) {
-            ResultSet rs = stmt.executeQuery();
-            List<FileInfo> fileInfos = new ArrayList<>();
-            while (rs.next()) {
-                FileInfo fileInfo = new FileInfo(
-                        rs.getString("file_name"),
-                        rs.getString("parent_directory_path"),
-                        rs.getString("file_extension"),
-                        FileType.valueOf(rs.getString("file_type"))
-                );
-                fileInfos.add(fileInfo);
-            }
-            return fileInfos.isEmpty() ? Optional.empty() : Optional.of(fileInfos);
-        }
-    }
-
-    @Override
     public Optional<Long> getEntityId(Connection conn, FileInfo entity) throws SQLException {
         try(PreparedStatement stmt = conn.prepareStatement(RETRIEVAL_SQL)){
             stmt.setString(1, entity.getParentDirectoryPath());

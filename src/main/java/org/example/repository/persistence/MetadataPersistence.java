@@ -77,49 +77,4 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
         }
         return true;
     }
-
-    @Override
-    public Optional<Metadata> getById(Connection conn, Long id) throws SQLException {
-        try(PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_SQL)){
-            stmt.setLong(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-
-                Metadata metadata = new Metadata(
-                        FileTime.from(rs.getTimestamp("creation_time").toInstant()),
-                        FileTime.from(rs.getTimestamp("last_modified_time").toInstant()),
-                        FileTime.from(rs.getTimestamp("last_access_time").toInstant()),
-                        rs.getLong("size"),
-                        rs.getBoolean("regular_file"),
-                        rs.getBoolean("symbolic_link"),
-                        rs.getBoolean("other_file"),
-                        (Object)rs.getString("file_key")
-                );
-                return Optional.of(metadata);
-            }
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<List<Metadata>> getAll(Connection conn) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_SQL)) {
-            ResultSet rs = stmt.executeQuery();
-            List<Metadata> metadataList = new ArrayList<>();
-            while (rs.next()) {
-                Metadata metadata = new Metadata(
-                        FileTime.from(rs.getTimestamp("creation_time").toInstant()),
-                        FileTime.from(rs.getTimestamp("last_modified_time").toInstant()),
-                        FileTime.from(rs.getTimestamp("last_access_time").toInstant()),
-                        rs.getLong("size"),
-                        rs.getBoolean("regular_file"),
-                        rs.getBoolean("symbolic_link"),
-                        rs.getBoolean("other_file"),
-                        (Object) rs.getString("file_key")
-                );
-                metadataList.add(metadata);
-            }
-            return metadataList.isEmpty() ? Optional.empty() : Optional.of(metadataList);
-        }
-    }
 }

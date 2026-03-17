@@ -62,29 +62,4 @@ public class ContentPersistence implements IPersistence<Long, String> {
         }
         return true;
     }
-
-    @Override
-    public Optional<String> getById(Connection conn, Long id) throws SQLException {
-        try(PreparedStatement stmt = conn.prepareStatement(GET_BY_ID_SQL)) {
-            stmt.setLong(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()) {
-                String content = rs.getString("raw_content");
-                return Optional.of(content);
-            }
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<List<String>> getAll(Connection conn) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_SQL)) {
-            ResultSet rs = stmt.executeQuery();
-            List<String> contents = new ArrayList<>();
-            while (rs.next()) {
-                contents.add(rs.getString("raw_content"));
-            }
-            return contents.isEmpty() ? Optional.empty() : Optional.of(contents);
-        }
-    }
 }
