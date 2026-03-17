@@ -52,9 +52,7 @@ public class QueryBuilder {
             parameters.add(params.getQueryContent().trim());
         }
 
-        SearchQuery query = new SearchQuery(sql.toString(), parameters);
-        logger.info("Search engine query: {} with {} parameters", query.getSql(), query.getParameters().size());
-        return query;
+        return new SearchQuery(sql.toString(), parameters);
     }
 
     private void appendFileInfoConditions(SearchParams params, List<String> conditions, List<Object> parameters) {

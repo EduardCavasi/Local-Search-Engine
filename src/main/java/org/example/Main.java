@@ -13,9 +13,10 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException {
         FileCrawler crawler = new FileCrawler();
-        crawler.crawl(Path.of("src"));
+        crawler.storeFileSystemSnapshot(List.of(Path.of("C:\\polibooks\\an3\\sem2\\software_engineering\\project\\test")));
         SearchParams params = SearchParams.builder()
-                .setQueryFileExtension("java")
+                .needsContent(true)
+                .setQueryContent("ana are mere")
                 .build();
         SearchEngine se = new SearchEngine();
         List<FilePreview> previews = se.executeQuery(params).get();

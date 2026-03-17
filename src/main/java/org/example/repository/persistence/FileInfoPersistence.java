@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileInfoRetrieval<Long, FileInfo> {
@@ -23,6 +25,8 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileI
             "SELECT file_id from file_info WHERE file_info.parent_directory_path = ? AND file_name = ?";
     private static final String GET_BY_ID_SQL =
             "SELECT * from file_info WHERE file_info.file_id = ?";
+    private static final String GET_ALL_SQL =
+            "SELECT * FROM file_info";
     @Override
     public Optional<Long> save(Connection conn, Long id,  FileInfo fileInfo) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -88,6 +92,24 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileI
                 return Optional.of(fileInfo);
             }
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<List<FileInfo>> getAll(Connection conn) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_SQL)) {
+            ResultSet rs = stmt.executeQuery();
+            List<FileInfo> fileInfos = new ArrayList<>();
+            while (rs.next()) {
+                FileInfo fileInfo = new FileInfo(
+                        rs.getString("file_name"),
+                        rs.getString("parent_directory_path"),
+                        rs.getString("file_extension"),
+                        FileType.valueOf(rs.getString("file_type"))
+                );
+                fileInfos.add(fileInfo);
+            }
+            return fileInfos.isEmpty() ? Optional.empty() : Optional.of(fileInfos);
         }
     }
 

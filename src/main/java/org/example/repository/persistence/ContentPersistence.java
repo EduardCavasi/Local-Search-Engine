@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ContentPersistence implements IPersistence<Long, String> {
@@ -19,6 +21,8 @@ public class ContentPersistence implements IPersistence<Long, String> {
             "UPDATE content_info SET raw_content = ? WHERE file_id = ?";
     private static final String GET_BY_ID_SQL =
             "SELECT * FROM content_info WHERE file_id = ?";
+    private static final String GET_ALL_SQL =
+            "SELECT * FROM content_info";
     @Override
     public Optional<Long> save(Connection conn, Long id, String rawContent) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
@@ -48,8 +52,8 @@ public class ContentPersistence implements IPersistence<Long, String> {
     @Override
     public boolean update(Connection conn, Long id, String newContent) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
-            stmt.setLong(1, id);
-            stmt.setString(2, newContent != null ? newContent : "");
+            stmt.setString(1, newContent != null ? newContent : "");
+            stmt.setLong(2, id);
             int affected = stmt.executeUpdate();
             if(affected == 0) {
                 logger.warn("Update table content_info had no effect!");
@@ -69,6 +73,18 @@ public class ContentPersistence implements IPersistence<Long, String> {
                 return Optional.of(content);
             }
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<List<String>> getAll(Connection conn) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_SQL)) {
+            ResultSet rs = stmt.executeQuery();
+            List<String> contents = new ArrayList<>();
+            while (rs.next()) {
+                contents.add(rs.getString("raw_content"));
+            }
+            return contents.isEmpty() ? Optional.empty() : Optional.of(contents);
         }
     }
 }

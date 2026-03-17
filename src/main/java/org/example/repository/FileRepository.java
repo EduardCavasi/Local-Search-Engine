@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
+
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -130,37 +130,6 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
         }
         catch (SQLException e) {
             logger.error("Failed to update file: {}", e.getMessage());
-        }
-    }
-
-    @Override
-    public Optional<Long> getEntityId(E entity) {
-        try(Connection conn = dataSource.getConnection()){
-            return fileInfoPersistence.getEntityId(conn, entity);
-        }
-        catch (SQLException e){
-            logger.error("Failed to retrieve file info {}", e.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<FileInfo> getById(Long id) {
-        try(Connection conn = dataSource.getConnection()){
-            Optional<FileInfo> fileInfoOptional = fileInfoPersistence.getById(conn, id);
-            Optional<Metadata> metadataOptional = metadataPersistence.getById(conn, id);
-            Optional<P> plugInOptional = plugInPersistence.getById(conn, id);
-            if(plugInOptional.isEmpty() || fileInfoOptional.isEmpty() || metadataOptional.isEmpty()) {
-                return Optional.empty();
-            }
-            FileInfo fileInfo = fileInfoOptional.get();
-            Metadata metadata = metadataOptional.get();
-            fileInfo.setMetadata(metadata);
-            return Optional.of(fileInfo);
-        }
-        catch (SQLException e){
-            logger.error("Failed to get file by id: {}", e.getMessage());
-            return Optional.empty();
         }
     }
 

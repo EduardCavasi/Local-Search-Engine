@@ -9,6 +9,4 @@ public interface IRepository<Id, E extends FileInfo> {
     Optional<Id> save(E entity);
     void delete(Id id);
     void update(Id id, E entity);
-    Optional<Id> getEntityId(E entity);
-    Optional<FileInfo> getById(Id id);
 }

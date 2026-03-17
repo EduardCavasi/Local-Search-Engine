@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.attribute.FileTime;
 import java.sql.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class MetadataPersistence implements IPersistence<Long, Metadata> {
@@ -19,17 +22,19 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
             "UPDATE metadata SET creation_time = ?, file_key = ?, regular_file = ?, symbolic_link = ?, other_file = ?, last_access_time = ?, last_modified_time = ?, size = ? WHERE file_id = ?";
     private static final String GET_BY_ID_SQL =
             "SELECT * from metadata WHERE file_id = ?";
+    private static final String GET_ALL_SQL =
+            "SELECT * FROM metadata";
     @Override
     public Optional<Long> save(Connection conn, Long id, Metadata metadata) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
             stmt.setLong(1, id);
-            stmt.setTimestamp(2, new Timestamp(metadata.getCreationTime().toMillis()));
+            stmt.setObject(2, Timestamp.from(metadata.getCreationTime().toInstant()));
             stmt.setString(3, metadata.getFile_key() == null ? "" : metadata.getFile_key().toString());
             stmt.setBoolean(4, metadata.getRegularFile());
             stmt.setBoolean(5, metadata.getSymbolic_link());
             stmt.setBoolean(6, metadata.getOther_file());
-            stmt.setTimestamp(7, new Timestamp(metadata.getLastAccessTime().toMillis()));
-            stmt.setTimestamp(8, new Timestamp(metadata.getLastModificationTime().toMillis()));
+            stmt.setObject(7, Timestamp.from(metadata.getLastAccessTime().toInstant()));
+            stmt.setObject(8, Timestamp.from(metadata.getLastModificationTime().toInstant()));
             stmt.setLong(9, metadata.getSize());
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -55,13 +60,13 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
     @Override
     public boolean update(Connection conn, Long id, Metadata metadata) throws SQLException {
         try(PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)){
-            stmt.setTimestamp(1, new Timestamp(metadata.getCreationTime().toMillis()));
+            stmt.setObject(1, Timestamp.from(metadata.getCreationTime().toInstant()));
             stmt.setString(2, metadata.getFile_key() == null ? "" : metadata.getFile_key().toString());
             stmt.setBoolean(3, metadata.getRegularFile());
             stmt.setBoolean(4, metadata.getSymbolic_link());
             stmt.setBoolean(5, metadata.getOther_file());
-            stmt.setTimestamp(6, new Timestamp(metadata.getLastAccessTime().toMillis()));
-            stmt.setTimestamp(7, new Timestamp(metadata.getLastModificationTime().toMillis()));
+            stmt.setObject(6, Timestamp.from(metadata.getLastAccessTime().toInstant()));
+            stmt.setObject(7, Timestamp.from(metadata.getLastModificationTime().toInstant()));
             stmt.setLong(8, metadata.getSize());
             stmt.setLong(9, id);
             int affected = stmt.executeUpdate();
@@ -81,9 +86,9 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
             if(rs.next()){
 
                 Metadata metadata = new Metadata(
-                        FileTime.fromMillis(rs.getTime("creation_time").getTime()),
-                        FileTime.fromMillis(rs.getTime("last_modified_time").getTime()),
-                        FileTime.fromMillis(rs.getTime("last_access_time").getTime()),
+                        FileTime.from(rs.getTimestamp("creation_time").toInstant()),
+                        FileTime.from(rs.getTimestamp("last_modified_time").toInstant()),
+                        FileTime.from(rs.getTimestamp("last_access_time").toInstant()),
                         rs.getLong("size"),
                         rs.getBoolean("regular_file"),
                         rs.getBoolean("symbolic_link"),
@@ -93,6 +98,28 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
                 return Optional.of(metadata);
             }
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<List<Metadata>> getAll(Connection conn) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(GET_ALL_SQL)) {
+            ResultSet rs = stmt.executeQuery();
+            List<Metadata> metadataList = new ArrayList<>();
+            while (rs.next()) {
+                Metadata metadata = new Metadata(
+                        FileTime.from(rs.getTimestamp("creation_time").toInstant()),
+                        FileTime.from(rs.getTimestamp("last_modified_time").toInstant()),
+                        FileTime.from(rs.getTimestamp("last_access_time").toInstant()),
+                        rs.getLong("size"),
+                        rs.getBoolean("regular_file"),
+                        rs.getBoolean("symbolic_link"),
+                        rs.getBoolean("other_file"),
+                        (Object) rs.getString("file_key")
+                );
+                metadataList.add(metadata);
+            }
+            return metadataList.isEmpty() ? Optional.empty() : Optional.of(metadataList);
         }
     }
 }
