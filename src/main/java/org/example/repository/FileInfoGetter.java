@@ -44,18 +44,15 @@ public class FileInfoGetter implements IFileInfoGetter {
     private static final String GET_BY_ID_WITH_METADATA_SQL = GET_ALL_WITH_METADATA_SQL + "\nWHERE fi.file_id = ?";
     private final IDataSource dataSource;
     private final FileInfoPersistence fileInfoPersistence;
-    private final IPersistence<Long, Metadata> metadataPersistence;
 
     public FileInfoGetter(IDataSource dataSource,
-                          FileInfoPersistence fileInfoPersistence,
-                          IPersistence<Long, Metadata> metadataPersistence
+                          FileInfoPersistence fileInfoPersistence
                           ) {
         this.dataSource = dataSource;
         this.fileInfoPersistence = fileInfoPersistence;
-        this.metadataPersistence = metadataPersistence;
     }
     public FileInfoGetter(){
-        this(DatabaseConnection.getInstance(), new FileInfoPersistence(), new MetadataPersistence());
+        this(DatabaseConnection.getInstance(), new FileInfoPersistence());
     }
     @Override
     public Optional<Long> getEntityId(FileInfo entity) {

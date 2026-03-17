@@ -23,17 +23,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileCrawler {
     private final Logger logger = LoggerFactory.getLogger(FileCrawler.class);
-    private final HashMap<FileType, IRepository<Long, ? extends FileInfo>> repositories = new HashMap<>();
+    private final HashMap<FileType, IRepository<Long, ? extends FileInfo>> repositories;
     private final FileSaver fileSaver;
     private final Tika tika;
-    private AtomicInteger modifiedCount = new AtomicInteger(0);
-    private AtomicInteger skippedCount = new AtomicInteger(0);
-    private AtomicInteger newCount = new AtomicInteger(0);
+    private final AtomicInteger modifiedCount;
+    private final AtomicInteger skippedCount;
+    private final AtomicInteger newCount;
     public FileCrawler() {
         FileRepository<TextualFileInfo, String> textualFileRepository = FileRepository.textual();
+        repositories = new HashMap<>();
         repositories.put(FileType.TEXTUAL_FILE, textualFileRepository);
         tika = new Tika();
         fileSaver = new FileSaver();
+        modifiedCount = new AtomicInteger(0);
+        skippedCount = new AtomicInteger(0);
+        newCount = new AtomicInteger(0);
     }
 
     public void storeFileSystemSnapshot(List<Path> rootDirs){
