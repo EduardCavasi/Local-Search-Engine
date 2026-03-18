@@ -3,8 +3,6 @@ package org.example.service.file_search;
 import lombok.NoArgsConstructor;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.attribute.FileTime;
 import java.sql.Timestamp;
@@ -14,7 +12,6 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class QueryBuilder {
-    private static final Logger logger = LoggerFactory.getLogger(QueryBuilder.class);
     private static final int PREVIEW_WORDS_BEFORE = 15;
     private static final int PREVIEW_WORDS_AFTER = 15;
 

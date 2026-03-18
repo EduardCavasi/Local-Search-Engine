@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,10 +21,8 @@ public class FileSaver {
     public FileSaver(){
         fileInfoGetter = new FileInfoGetter();
     }
-    public void deleteAllFilesNotPresent(HashMap<FileType, IRepository<Long, ? extends FileInfo>> repo) {
+    public void deleteAllFilesNotPresent(Map<FileType, IRepository<Long, ? extends FileInfo>> repo, FileCrawlerStats stats) {
         Optional<List<FileInfo>> fileInfos = fileInfoGetter.getAll();
-
-        AtomicInteger deleteCount = new AtomicInteger(0);
 
         fileInfos.ifPresent(infos -> infos.forEach(info -> {
             String fullPath = info.getParentDirectoryPath() + File.separator + info.getFileName();
@@ -31,13 +30,11 @@ public class FileSaver {
             if(!file.exists()){
                 Optional<Long> id = fileInfoGetter.getEntityId(info);
                 id.ifPresent(repo.get(info.getFileType())::delete);
-                deleteCount.incrementAndGet();
+                stats.getDeletedCount().incrementAndGet();
             }
         }));
-
-        logger.info("Deleted {} files from database as they are no longer in file system.", deleteCount.get());
     }
-    public <E extends FileInfo> void addFile(E fileInfo, IRepository<Long, E> repo, AtomicInteger newCount, AtomicInteger modifiedCount, AtomicInteger skippedCount) {
+    public <E extends FileInfo> void addFile(E fileInfo, IRepository<Long, E> repo, FileCrawlerStats stats) {
 
         Optional<Long> fileId = fileInfoGetter.getEntityId(fileInfo);
         fileId.ifPresentOrElse(
@@ -46,16 +43,16 @@ public class FileSaver {
                inDbFileInfo.ifPresent(inDbInfo -> {
                    if(inDbInfo.getMetadata().getLastModificationTime().toMillis() != fileInfo.getMetadata().getLastModificationTime().toMillis()){
                        repo.update(id, fileInfo);
-                       modifiedCount.incrementAndGet();
+                       stats.getModifiedCount().incrementAndGet();
                    }
                    else{
-                       skippedCount.incrementAndGet();
+                       stats.getSkippedCount().incrementAndGet();
                    }
                });
             },
             () -> {
                 repo.save(fileInfo);
-                newCount.incrementAndGet();
+                stats.getNewCount().incrementAndGet();
             }
         );
 

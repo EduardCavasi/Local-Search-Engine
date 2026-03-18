@@ -26,7 +26,7 @@ public class TextualFileInfo extends FileInfo {
             content = Files.readString(file.toPath());
         }
         catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warn("Unable to read file: {}", file.getAbsolutePath());
         }
         return content;
     }

@@ -50,7 +50,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
                         fileInfo);
 
                 if (fileId.isEmpty()) {
-                    logger.warn("File info insert did not return a generated key for {}", fileInfo.getFileName());
+                    logger.error("File info insert did not return a generated key for {}", fileInfo.getFileName());
                     conn.rollback();
                     return Optional.empty();
                 }
@@ -73,8 +73,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            logger.error("Failed to save file: {}", e.getMessage());
-            return Optional.empty();
+            logger.error("Failed to save fileName={}, parentDirectoryPath={}, fileType={}", fileInfo.getFileName(), fileInfo.getParentDirectoryPath(), fileInfo.getFileType(), e);
         }
         return fileId;
     }
@@ -102,7 +101,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
             }
         }
         catch (SQLException e) {
-            logger.error("Failed to delete file: {}", e.getMessage());
+            logger.error("Failed to delete file by id={}", id, e);
         }
     }
 
@@ -129,7 +128,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
             }
         }
         catch (SQLException e) {
-            logger.error("Failed to update file: {}", e.getMessage());
+            logger.error("Failed to update file by id={} (fileName={}, parentDirectoryPath={}, fileType={})", id, fileInfo.getFileName(), fileInfo.getParentDirectoryPath(), fileInfo.getFileType(), e);
         }
     }
 

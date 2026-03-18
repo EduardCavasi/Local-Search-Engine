@@ -36,7 +36,7 @@ public class SearchEngine {
             ResultSet rs = ps.executeQuery();
             return Optional.of(previewBuilder.buildPreviews(rs));
         } catch (SQLException e) {
-            logger.error("Search failed: {}", e.getMessage());
+            logger.error("Search failed", e);
         }
         return Optional.empty();
     }

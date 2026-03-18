@@ -6,8 +6,6 @@ import org.example.model.FileInfo;
 import org.example.model.FileType;
 import org.example.model.Metadata;
 import org.example.repository.persistence.FileInfoPersistence;
-import org.example.repository.persistence.IPersistence;
-import org.example.repository.persistence.MetadataPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,9 +58,9 @@ public class FileInfoGetter implements IFileInfoGetter {
             return fileInfoPersistence.getEntityId(conn, entity);
         }
         catch (SQLException e){
-            logger.error("Failed to retrieve file info {}", e.getMessage());
-            return Optional.empty();
+            logger.error("Failed to retrieve file id for fileName={}, parentDirectoryPath={}", entity.getFileName(), entity.getParentDirectoryPath(), e);
         }
+        return Optional.empty();
     }
 
     @Override
@@ -98,9 +96,9 @@ public class FileInfoGetter implements IFileInfoGetter {
             fileInfo.setMetadata(metadata);
             return Optional.of(fileInfo);
         } catch (SQLException e) {
-            logger.error("Failed to get file by id: {}", e.getMessage());
-            return Optional.empty();
+            logger.error("Failed to get file by id={}", id, e);
         }
+        return Optional.empty();
     }
 
     @Override
@@ -137,9 +135,8 @@ public class FileInfoGetter implements IFileInfoGetter {
                 return results.isEmpty() ? Optional.empty() : Optional.of(results);
             }
         } catch (SQLException e) {
-            logger.error("Failed to get all files: {}", e.getMessage());
-            return Optional.empty();
+            logger.error("Failed to get all files", e);
         }
+        return Optional.empty();
     }
-
 }

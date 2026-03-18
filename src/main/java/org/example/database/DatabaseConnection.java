@@ -2,8 +2,7 @@ package org.example.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.example.error.DatabaseException;
 
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -11,9 +10,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnection implements IDataSource {
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
     private static final HikariConfig config = new HikariConfig();
-    private static HikariDataSource ds;
+    private static final HikariDataSource ds;
     private static final DatabaseConnection INSTANCE = new DatabaseConnection();
 
     static {
@@ -27,7 +25,7 @@ public class DatabaseConnection implements IDataSource {
             config.setPassword(props.getProperty("db.pass"));
             ds = new HikariDataSource(config);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            throw new DatabaseException("Failed to initialize database connection pool", e);
         }
     }
 

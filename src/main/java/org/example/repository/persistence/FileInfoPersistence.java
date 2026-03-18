@@ -23,10 +23,6 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileI
             "UPDATE file_info SET parent_directory_path = ?, file_type = ?, file_extension = ?, file_name = ? WHERE file_info.file_id = ?";
     private static final String RETRIEVAL_SQL =
             "SELECT file_id from file_info WHERE file_info.parent_directory_path = ? AND file_name = ?";
-    private static final String GET_BY_ID_SQL =
-            "SELECT * from file_info WHERE file_info.file_id = ?";
-    private static final String GET_ALL_SQL =
-            "SELECT * FROM file_info";
     @Override
     public Optional<Long> save(Connection conn, Long id,  FileInfo fileInfo) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {

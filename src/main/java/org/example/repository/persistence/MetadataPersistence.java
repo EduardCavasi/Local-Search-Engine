@@ -20,10 +20,6 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
             "DELETE FROM metadata WHERE file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE metadata SET creation_time = ?, file_key = ?, regular_file = ?, symbolic_link = ?, other_file = ?, last_access_time = ?, last_modified_time = ?, size = ? WHERE file_id = ?";
-    private static final String GET_BY_ID_SQL =
-            "SELECT * from metadata WHERE file_id = ?";
-    private static final String GET_ALL_SQL =
-            "SELECT * FROM metadata";
     @Override
     public Optional<Long> save(Connection conn, Long id, Metadata metadata) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {

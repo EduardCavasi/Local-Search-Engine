@@ -82,7 +82,7 @@ public class PreviewBuilder {
             }
         }
         catch (IOException ex) {
-            logger.warn(ex.getMessage());
+            logger.warn("Unable to read file: {}", filePath);
         }
 
         return result.toString();

@@ -1,7 +1,6 @@
 package org.example.model.preview;
 
 import lombok.Getter;
-import org.example.model.preview.FilePreview;
 
 @Getter
 public class TextualFilePreview extends FilePreview {

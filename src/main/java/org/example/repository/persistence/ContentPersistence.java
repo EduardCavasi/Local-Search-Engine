@@ -19,10 +19,6 @@ public class ContentPersistence implements IPersistence<Long, String> {
             "DELETE FROM content_info WHERE file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE content_info SET raw_content = ? WHERE file_id = ?";
-    private static final String GET_BY_ID_SQL =
-            "SELECT * FROM content_info WHERE file_id = ?";
-    private static final String GET_ALL_SQL =
-            "SELECT * FROM content_info";
     @Override
     public Optional<Long> save(Connection conn, Long id, String rawContent) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
