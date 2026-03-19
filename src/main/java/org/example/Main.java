@@ -13,7 +13,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException {
         FileCrawler crawler = new FileCrawler();
-        crawler.storeFileSystemSnapshot(List.of(Path.of("C:\\polibooks\\an3\\sem2\\software_engineering\\project\\test")));
+        crawler.storeFileSystemSnapshot(List.of(Path.of("C:\\polibooks\\an3\\sem2\\software_engineering\\project\\test"), Path.of("C:\\polibooks\\an3\\sem2\\software_engineering\\project\\search_engine_core")));
         SearchParams params = SearchParams.builder()
                 .needsContent(true)
                 .setQueryContent("ana are mere")

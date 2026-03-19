@@ -9,11 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileSaver {
     private static final Logger logger = LoggerFactory.getLogger(FileSaver.class);
@@ -21,7 +19,7 @@ public class FileSaver {
     public FileSaver(){
         fileInfoGetter = new FileInfoGetter();
     }
-    public void deleteAllFilesNotPresent(Map<FileType, IRepository<Long, ? extends FileInfo>> repo, FileCrawlerStats stats) {
+    public void deleteAllFilesNotPresent(Map<FileType, IRepository<Long, ? extends FileInfo>> repo, IndexingStats stats) {
         Optional<List<FileInfo>> fileInfos = fileInfoGetter.getAll();
 
         fileInfos.ifPresent(infos -> infos.forEach(info -> {
@@ -34,7 +32,7 @@ public class FileSaver {
             }
         }));
     }
-    public <E extends FileInfo> void addFile(E fileInfo, IRepository<Long, E> repo, FileCrawlerStats stats) {
+    public <E extends FileInfo> void addFile(E fileInfo, IRepository<Long, E> repo, IndexingStats stats) {
 
         Optional<Long> fileId = fileInfoGetter.getEntityId(fileInfo);
         fileId.ifPresentOrElse(

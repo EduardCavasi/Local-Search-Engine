@@ -21,7 +21,7 @@ public class TextualFileInfo extends FileInfo {
         super.setFileType(FileType.TEXTUAL_FILE);
     }
     private String readContent(File file) {
-        String content = null;
+        String content = "";
         try {
             content = Files.readString(file.toPath());
         }

@@ -20,7 +20,12 @@ public class FileInfo {
     public FileInfo(File file, BasicFileAttributes attr) {
         this.fileName = file.getName();
         this.parentDirectoryPath = file.getParent();
-        this.fileExtension = this.fileName.substring(this.fileName.lastIndexOf(".") + 1);
+        if (this.fileName.startsWith(".")) {
+            this.fileExtension = "";
+        }
+        else {
+            this.fileExtension = this.fileName.substring(this.fileName.lastIndexOf(".") + 1);
+        }
         this.metadata = new Metadata(attr);
     }
 

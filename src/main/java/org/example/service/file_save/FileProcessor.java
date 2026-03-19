@@ -29,11 +29,11 @@ public class FileProcessor {
         this.tika = new Tika();
     }
 
-    public void deleteAllFilesNotPresent(FileCrawlerStats stats){
+    public void deleteAllFilesNotPresent(IndexingStats stats){
         fileSaver.deleteAllFilesNotPresent(repositories, stats);
     }
 
-    public void processFile(Path file, BasicFileAttributes attrs, FileCrawlerStats stats){
+    public void processFile(Path file, BasicFileAttributes attrs, IndexingStats stats){
         try {
             FileType fileType = FileType.UNKNOWN;
             String type = tika.detect(file);
