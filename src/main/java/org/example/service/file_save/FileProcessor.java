@@ -1,9 +1,9 @@
 package org.example.service.file_save;
 
 import org.apache.tika.Tika;
-import org.example.model.FileInfo;
-import org.example.model.FileType;
-import org.example.model.TextualFileInfo;
+import org.example.model.file.FileInfo;
+import org.example.model.file.FileType;
+import org.example.model.file.TextualFileInfo;
 import org.example.repository.FileRepository;
 import org.example.repository.IRepository;
 import org.slf4j.Logger;

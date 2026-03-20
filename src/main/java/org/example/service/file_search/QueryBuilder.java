@@ -21,7 +21,8 @@ public class QueryBuilder {
                 && params.getQueryContent() != null && !params.getQueryContent().trim().isEmpty();
 
         if (contentSearchWithQuery) {
-            sql.append("SELECT *, ts_headline('simple', content_info.raw_content, plainto_tsquery('simple', ?), ")
+            sql.append("WITH q as (SELECT plainto_tsquery('simple', ?) AS query)\n")
+                    .append("SELECT *, ts_headline('simple', content_info.raw_content, q.query, ")
                     .append("'MaxWords=").append(PREVIEW_WORDS_BEFORE + PREVIEW_WORDS_AFTER + 10)
                     .append(", MinWords=15') AS preview_content FROM file_info\n");
         } else {
@@ -33,22 +34,19 @@ public class QueryBuilder {
         if (params.isNeedsContent()) {
             sql.append(" JOIN content_info ON file_info.file_id = content_info.file_id\n");
         }
+        if(params.isNeedsContent()){
+            sql.append(" CROSS JOIN q\n");
+        }
 
         List<String> conditions = new ArrayList<>();
         List<Object> parameters = new ArrayList<>();
+        appendContentConditions(params, conditions, parameters);
         appendFileInfoConditions(params, conditions, parameters);
         appendMetadataConditions(params, conditions, parameters);
-        appendContentConditions(params, conditions, parameters);
-
         if (!conditions.isEmpty()) {
             sql.append(" WHERE ");
             sql.append(conditions.stream().collect(Collectors.joining(" AND ")));
         }
-
-        if (contentSearchWithQuery) {
-            parameters.add(params.getQueryContent().trim());
-        }
-
         return new SearchQuery(sql.toString(), parameters);
     }
 
@@ -114,7 +112,7 @@ public class QueryBuilder {
             return;
         }
         if (params.getQueryContent() != null && !params.getQueryContent().isEmpty()) {
-            conditions.add("content_info.searchable_content @@ plainto_tsquery('simple', ?)");
+            conditions.add("content_info.searchable_content @@ q.query");
             parameters.add(params.getQueryContent());
         }
     }

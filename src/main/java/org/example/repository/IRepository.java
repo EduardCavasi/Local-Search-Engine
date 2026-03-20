@@ -1,8 +1,7 @@
 package org.example.repository;
 
-import org.example.model.FileInfo;
+import org.example.model.file.FileInfo;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IRepository<Id, E extends FileInfo> {

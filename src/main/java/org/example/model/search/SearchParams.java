@@ -3,12 +3,14 @@ package org.example.model.search;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.nio.file.attribute.FileTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class SearchParams {
     private String queryFileName;
     private String queryFileExtension;

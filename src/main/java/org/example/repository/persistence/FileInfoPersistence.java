@@ -1,7 +1,6 @@
 package org.example.repository.persistence;
 
-import org.example.model.FileInfo;
-import org.example.model.FileType;
+import org.example.model.file.FileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileInfoRetrieval<Long, FileInfo> {

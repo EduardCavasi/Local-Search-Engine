@@ -2,9 +2,9 @@ package org.example.repository;
 
 import org.example.database.DatabaseConnection;
 import org.example.database.IDataSource;
-import org.example.model.FileInfo;
-import org.example.model.FileType;
-import org.example.model.Metadata;
+import org.example.model.file.FileInfo;
+import org.example.model.file.FileType;
+import org.example.model.file.Metadata;
 import org.example.repository.persistence.FileInfoPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package org.example.service.file_save;
 
-import org.example.model.FileInfo;
-import org.example.model.FileType;
+import org.example.model.file.FileInfo;
+import org.example.model.file.FileType;
 import org.example.repository.FileInfoGetter;
 import org.example.repository.IFileInfoGetter;
 import org.example.repository.IRepository;

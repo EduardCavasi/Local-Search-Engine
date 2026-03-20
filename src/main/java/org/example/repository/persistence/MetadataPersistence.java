@@ -1,14 +1,10 @@
 package org.example.repository.persistence;
 
-import org.example.model.Metadata;
+import org.example.model.file.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.attribute.FileTime;
 import java.sql.*;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class MetadataPersistence implements IPersistence<Long, Metadata> {

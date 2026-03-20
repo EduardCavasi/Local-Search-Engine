@@ -2,7 +2,7 @@ package org.example.service.file_search;
 
 
 import lombok.NoArgsConstructor;
-import org.example.model.FileType;
+import org.example.model.file.FileType;
 import org.example.model.preview.FilePreview;
 import org.example.model.preview.TextualFilePreview;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 @NoArgsConstructor
 public class PreviewBuilder {

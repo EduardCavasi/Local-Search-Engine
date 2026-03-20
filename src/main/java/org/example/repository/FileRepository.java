@@ -2,9 +2,9 @@ package org.example.repository;
 
 import org.example.database.DatabaseConnection;
 import org.example.database.IDataSource;
-import org.example.model.FileInfo;
-import org.example.model.Metadata;
-import org.example.model.TextualFileInfo;
+import org.example.model.file.FileInfo;
+import org.example.model.file.Metadata;
+import org.example.model.file.TextualFileInfo;
 import org.example.repository.persistence.ContentPersistence;
 import org.example.repository.persistence.FileInfoPersistence;
 import org.example.repository.persistence.IPersistence;
@@ -62,7 +62,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
                     conn.rollback();
                     return Optional.empty();
                 }
-                logger.info("File info for file {} saved to database.", fileInfo.getFileName());
+                //logger.info("File info for file {} saved to database.", fileInfo.getFileName());
                 conn.commit();
             }
             catch (SQLException e) {
