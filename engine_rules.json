@@ -1,0 +1,5 @@
+{
+  "ignorePaths" : [ "C:/Windows", "C:/Program Files", "C:/Program Files (x86)", ".git", "node_modules", ".cache", ".svn", "__pycache__" ],
+  "ignoreExtensions" : [ "tmp", "swp", "bak", "class", "o", "obj", "exe", "dll" ],
+  "rootDirs" : [ "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/main/java"]
+}

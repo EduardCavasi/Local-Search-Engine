@@ -1,5 +1,6 @@
 package org.example.service.file_save;
 
+import org.example.model.general.EngineRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,15 +20,21 @@ public class FileCrawler {
     private final Logger logger = LoggerFactory.getLogger(FileCrawler.class);
     private final FileProcessor fileProcessor;
     private final IndexingStats stats;
+    private final EngineRules engineRules;
     public FileCrawler() {
-        this(new FileProcessor(), new IndexingStats());
+        this(new FileProcessor(), new IndexingStats(), new EngineRules());
     }
 
-    public FileCrawler(FileProcessor fileProcessor, IndexingStats stats) {
+    public FileCrawler(FileProcessor fileProcessor, IndexingStats stats, EngineRules engineRules) {
         this.fileProcessor = fileProcessor;
-        this.stats = stats;    }
+        this.stats = stats;
+        this.engineRules = engineRules;
+    }
 
-    public void storeFileSystemSnapshot(List<Path> rootDirs){
+    public void storeFileSystemSnapshot(){
+        List<Path> rootDirs = engineRules.getRootDirs().stream().map(Path::of).toList();
+        logger.info("Executing indexing for directories: {}", rootDirs);
+
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             ExecutorService workers = Executors.newFixedThreadPool(4);
@@ -59,6 +66,7 @@ public class FileCrawler {
             }
         });
         executorService.shutdown();
+        logger.info("Finished indexing for directories: {}", rootDirs);
     }
 
     private void crawlDirectory(Path root) {
@@ -66,7 +74,9 @@ public class FileCrawler {
             Files.walkFileTree(root, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE ,new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
-                    fileProcessor.processFile(file, attrs, stats);
+                    if(engineRules.continueIndexFile(file)) {
+                        fileProcessor.processFile(file, attrs, stats);
+                    }
                     return FileVisitResult.CONTINUE;
                 }
                 @Override
@@ -79,6 +89,14 @@ public class FileCrawler {
                     }
                     return FileVisitResult.CONTINUE;
                 }
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                    if (!engineRules.continueIndexDirectory(dir)) {
+                        return FileVisitResult.SKIP_SUBTREE;
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
             });
         } catch (IOException e) {
             logger.error("Failed to crawl directory root={}", root, e);
