@@ -3,10 +3,12 @@ package org.example.repository.persistence;
 import org.example.model.file.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.Optional;
 
+@Component
 public class MetadataPersistence implements IPersistence<Long, Metadata> {
     private static final Logger logger = LoggerFactory.getLogger(MetadataPersistence.class);
 

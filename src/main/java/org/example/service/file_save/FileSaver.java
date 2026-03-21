@@ -2,22 +2,23 @@ package org.example.service.file_save;
 
 import org.example.model.file.FileInfo;
 import org.example.model.file.FileType;
-import org.example.repository.FileInfoGetter;
 import org.example.repository.IFileInfoGetter;
 import org.example.repository.IRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Service
 public class FileSaver {
     private static final Logger logger = LoggerFactory.getLogger(FileSaver.class);
     private final IFileInfoGetter fileInfoGetter;
-    public FileSaver(){
-        fileInfoGetter = new FileInfoGetter();
+    public FileSaver(IFileInfoGetter fileInfoGetter){
+        this.fileInfoGetter = fileInfoGetter;
     }
     public void deleteAllFilesNotPresent(Map<FileType, IRepository<Long, ? extends FileInfo>> repo, IndexingStats stats) {
         Optional<List<FileInfo>> fileInfos = fileInfoGetter.getAll();

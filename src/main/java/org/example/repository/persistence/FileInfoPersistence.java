@@ -3,6 +3,7 @@ package org.example.repository.persistence;
 import org.example.model.file.FileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+@Component
 public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileInfoRetrieval<Long, FileInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoPersistence.class);
     private static final String INSERT_SQL =

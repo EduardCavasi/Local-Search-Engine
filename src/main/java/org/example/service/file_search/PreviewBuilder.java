@@ -7,6 +7,7 @@ import org.example.model.preview.FilePreview;
 import org.example.model.preview.TextualFilePreview;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.sql.ResultSet;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @NoArgsConstructor
 public class PreviewBuilder {
     private static final Logger logger = LoggerFactory.getLogger(PreviewBuilder.class);

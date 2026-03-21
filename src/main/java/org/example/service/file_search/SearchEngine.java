@@ -1,6 +1,5 @@
 package org.example.service.file_search;
 
-import org.example.database.DatabaseConnection;
 import org.example.database.IDataSource;
 import org.example.model.preview.FilePreview;
 import org.example.model.search.SearchParams;
@@ -19,10 +18,6 @@ public class SearchEngine {
     private final IDataSource dataSource;
     private final PreviewBuilder previewBuilder;
     private final QueryBuilder queryBuilder;
-
-    public SearchEngine() {
-        this(DatabaseConnection.getInstance(), new PreviewBuilder(), new QueryBuilder());
-    }
 
     public SearchEngine(IDataSource dataSource, PreviewBuilder previewBuilder, QueryBuilder queryBuilder) {
         this.dataSource = dataSource;

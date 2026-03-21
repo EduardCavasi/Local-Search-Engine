@@ -1,6 +1,5 @@
 package org.example.repository;
 
-import org.example.database.DatabaseConnection;
 import org.example.database.IDataSource;
 import org.example.model.file.FileInfo;
 import org.example.model.file.FileType;
@@ -8,6 +7,7 @@ import org.example.model.file.Metadata;
 import org.example.repository.persistence.FileInfoPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.nio.file.attribute.FileTime;
 
+@Repository
 public class FileInfoGetter implements IFileInfoGetter {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoGetter.class);
     private static final String GET_ALL_WITH_METADATA_SQL = """
@@ -48,9 +49,6 @@ public class FileInfoGetter implements IFileInfoGetter {
                           ) {
         this.dataSource = dataSource;
         this.fileInfoPersistence = fileInfoPersistence;
-    }
-    public FileInfoGetter(){
-        this(DatabaseConnection.getInstance(), new FileInfoPersistence());
     }
     @Override
     public Optional<Long> getEntityId(FileInfo entity) {

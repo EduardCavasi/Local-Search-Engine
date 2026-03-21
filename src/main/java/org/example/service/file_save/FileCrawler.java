@@ -18,16 +18,12 @@ import java.util.concurrent.Executors;
 public class FileCrawler {
     private final Logger logger = LoggerFactory.getLogger(FileCrawler.class);
     private final FileProcessor fileProcessor;
-    private final IndexingStats stats;
     private final EngineRules engineRules;
-    public FileCrawler() {
-        this(new FileProcessor(), new IndexingStats(), new EngineRules());
-    }
-
-    public FileCrawler(FileProcessor fileProcessor, IndexingStats stats, EngineRules engineRules) {
+    private final IndexingStats stats;
+    public FileCrawler(FileProcessor fileProcessor, EngineRules engineRules, IndexingStats stats) {
         this.fileProcessor = fileProcessor;
-        this.stats = stats;
         this.engineRules = engineRules;
+        this.stats = stats;
     }
 
     public void storeFileSystemSnapshot(){

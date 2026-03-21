@@ -1,10 +1,10 @@
 package org.example.model.general;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -15,12 +15,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Component
-@NoArgsConstructor
 public class EngineRules {
     private static final Logger logger = LoggerFactory.getLogger(EngineRules.class);
     private static final File SAVE_FILE = new File("engine_rules.json");
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     @Getter
     private final List<String> ignorePaths = new ArrayList<>();
@@ -46,6 +46,12 @@ public class EngineRules {
             "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/main/java"
     );
 
+    public EngineRules(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+    public EngineRules() {
+        this.mapper = new ObjectMapper();
+    }
     @PostConstruct
     public void loadState() {
         if (SAVE_FILE.exists()) {

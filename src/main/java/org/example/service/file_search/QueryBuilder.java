@@ -3,6 +3,7 @@ package org.example.service.file_search;
 import lombok.NoArgsConstructor;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.attribute.FileTime;
 import java.sql.Timestamp;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 @NoArgsConstructor
 public class QueryBuilder {
     private static final int PREVIEW_WORDS_BEFORE = 15;

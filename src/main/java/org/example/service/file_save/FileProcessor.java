@@ -4,10 +4,10 @@ import org.apache.tika.Tika;
 import org.example.model.file.FileInfo;
 import org.example.model.file.FileType;
 import org.example.model.file.TextualFileInfo;
-import org.example.repository.FileRepository;
 import org.example.repository.IRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,18 +15,18 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class FileProcessor {
     private final Logger logger = LoggerFactory.getLogger(FileProcessor.class);
     private final Map<FileType, IRepository<Long, ? extends FileInfo>> repositories;
     private final FileSaver fileSaver;
     private final Tika tika;
 
-    public FileProcessor() {
-        FileRepository<TextualFileInfo, String> textualFileRepository = FileRepository.textual();
+    public FileProcessor(IRepository<Long, TextualFileInfo> textualFileRepository, FileSaver fileSaver, Tika tika) {
         this.repositories = new HashMap<>();
         this.repositories.put(FileType.TEXTUAL_FILE, textualFileRepository);
-        this.fileSaver = new FileSaver();
-        this.tika = new Tika();
+        this.fileSaver = fileSaver;
+        this.tika = tika;
     }
 
     public void deleteAllFilesNotPresent(IndexingStats stats){

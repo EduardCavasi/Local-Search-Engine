@@ -1,14 +1,10 @@
 package org.example.repository;
 
-import org.example.database.DatabaseConnection;
 import org.example.database.IDataSource;
 import org.example.model.file.FileInfo;
 import org.example.model.file.Metadata;
-import org.example.model.file.TextualFileInfo;
-import org.example.repository.persistence.ContentPersistence;
 import org.example.repository.persistence.FileInfoPersistence;
 import org.example.repository.persistence.IPersistence;
-import org.example.repository.persistence.MetadataPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,15 +126,5 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
         catch (SQLException e) {
             logger.error("Failed to update file by id={} (fileName={}, parentDirectoryPath={}, fileType={})", id, fileInfo.getFileName(), fileInfo.getParentDirectoryPath(), fileInfo.getFileType(), e);
         }
-    }
-
-    public static FileRepository<TextualFileInfo, String> textual() {
-        return new FileRepository<>(
-                DatabaseConnection.getInstance(),
-                new FileInfoPersistence(),
-                new MetadataPersistence(),
-                new ContentPersistence(),
-                TextualFileInfo::getContent
-        );
     }
 }

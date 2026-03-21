@@ -2,12 +2,14 @@ package org.example.repository.persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+@Component
 public class ContentPersistence implements IPersistence<Long, String> {
     private static final Logger logger = LoggerFactory.getLogger(ContentPersistence.class);
     private static final String INSERT_SQL =

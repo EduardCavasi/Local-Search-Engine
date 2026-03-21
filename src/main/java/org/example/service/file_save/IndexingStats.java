@@ -1,9 +1,11 @@
 package org.example.service.file_save;
 
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Component
 @Getter
 public class IndexingStats {
     private final AtomicInteger modifiedCount;

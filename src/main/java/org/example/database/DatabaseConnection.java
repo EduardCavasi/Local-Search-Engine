@@ -3,16 +3,17 @@ package org.example.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.example.error.DatabaseException;
+import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+@Component
 public class DatabaseConnection implements IDataSource {
     private static final HikariConfig config = new HikariConfig();
     private static final HikariDataSource ds;
-    private static final DatabaseConnection INSTANCE = new DatabaseConnection();
 
     static {
         try {
@@ -27,12 +28,6 @@ public class DatabaseConnection implements IDataSource {
         } catch (Exception e) {
             throw new DatabaseException("Failed to initialize database connection pool", e);
         }
-    }
-
-    private DatabaseConnection() {}
-
-    public static IDataSource getInstance() {
-        return INSTANCE;
     }
 
     @Override
