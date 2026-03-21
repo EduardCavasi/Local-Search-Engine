@@ -1,6 +1,5 @@
 package org.example.controller;
 
-import org.apache.catalina.Engine;
 import org.example.model.general.EngineRules;
 import org.example.model.preview.FilePreview;
 import org.example.model.search.SearchParams;

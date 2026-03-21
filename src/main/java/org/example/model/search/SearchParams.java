@@ -26,7 +26,4 @@ public class SearchParams {
     private FileTime queryLastAccessed;
     private boolean needsContent;
     private String queryContent;
-    public static SearchParamsBuilder builder() {
-        return new SearchParamsBuilder();
-    }
 }
