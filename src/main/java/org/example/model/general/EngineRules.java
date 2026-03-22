@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @Component
 public class EngineRules {
     private static final Logger logger = LoggerFactory.getLogger(EngineRules.class);
+    private static final Integer MAX_DIM = 1024 * 1024;
     private static final File SAVE_FILE = new File("engine_rules.json");
     private final ObjectMapper mapper;
 
@@ -31,6 +33,7 @@ public class EngineRules {
 
     private static final List<String> INITIAL_IGNORE_PATHS = List.of(
         "C:/Windows",
+        "C:/eSupport",
         "C:/Program Files",
         "C:/Program Files (x86)",
         ".git",
@@ -87,21 +90,27 @@ public class EngineRules {
     }
 
     public boolean continueIndexDirectory(Path path){
+        String normalizedPath = path.toString().replace("\\", "/");
         for(String ignorePath : ignorePaths) {
-            if(path.toString().contains(ignorePath)){
+            if(normalizedPath.contains(ignorePath)) {
                 return false;
             }
         }
         return true;
     }
-    public boolean continueIndexFile(Path path){
-        if(path.toString().charAt(path.toString().lastIndexOf('/') + 1) == '.'){
+    public boolean continueIndexFile(Path path, BasicFileAttributes attrs){
+        String normalizedPath = path.toString().replace("\\", "/");
+
+        if(normalizedPath.charAt(normalizedPath.lastIndexOf('/') + 1) == '.'){
             return false;
         }
         for(String ignoreExtension : ignoreExtensions) {
-            if(path.toString().endsWith(ignoreExtension)){
+            if(normalizedPath.endsWith(ignoreExtension)){
                 return false;
             }
+        }
+        if(attrs.size() > MAX_DIM){
+            return false;
         }
         return true;
     }

@@ -48,10 +48,12 @@ public class FileProcessor {
                             (IRepository<Long, TextualFileInfo>) repositories.get(FileType.TEXTUAL_FILE);
                     fileSaver.addFile(textualFileInfo, repo, stats);
                 }
+                default -> stats.incrementNonTextualCount();
             }
         }
         catch (IOException e) {
             logger.warn("Failed to process file={}", file, e);
+            stats.incrementNonTextualCount();
         }
     }
 }

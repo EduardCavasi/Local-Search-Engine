@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class FileCrawler {
@@ -27,6 +28,7 @@ public class FileCrawler {
     }
 
     public void storeFileSystemSnapshot(){
+        AtomicInteger fileCount = new AtomicInteger(0);
         List<Path> rootDirs = engineRules.getRootDirs().stream().map(Path::of).toList();
         logger.info("Executing indexing for directories: {}", rootDirs);
 
@@ -38,7 +40,7 @@ public class FileCrawler {
 
                 List<Callable<Void>> tasks = rootDirs.stream().map(
                         dir -> (Callable<Void>) () -> {
-                            crawlDirectory(dir);
+                            crawlDirectory(dir, fileCount);
                             return null;
                         }
                 ).toList();
@@ -50,27 +52,27 @@ public class FileCrawler {
             finally {
                 workers.shutdown();
                 executorService.shutdown();
-                logger.info("Deleted {} files from database as they are no longer in file system.", stats.getDeletedCount().get());
-                logger.info("Added {} files to database as they were modified in the file system.", stats.getModifiedCount().get());
-                logger.info("Skipped {} files as they are already in database.", stats.getSkippedCount().get());
-                logger.info("Added {} files to database as they are new in the file system", stats.getNewCount().get());
-                stats.getDeletedCount().set(0);
-                stats.getModifiedCount().set(0);
-                stats.getSkippedCount().set(0);
-                stats.getNewCount().set(0);
+                stats.report();
             }
         });
         executorService.shutdown();
         logger.info("Finished indexing for directories: {}", rootDirs);
     }
 
-    private void crawlDirectory(Path root) {
+    private void crawlDirectory(Path root, AtomicInteger fileCount) {
         try {
             Files.walkFileTree(root, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE ,new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
-                    if(engineRules.continueIndexFile(file)) {
+                    if(engineRules.continueIndexFile(file, attrs)) {
+                        int count = fileCount.incrementAndGet();
+                        if(count % 100 == 0){
+                            stats.progress(count);
+                        }
                         fileProcessor.processFile(file, attrs, stats);
+                    }
+                    else{
+                        stats.incrementIgnoredCount();
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -82,6 +84,7 @@ public class FileCrawler {
                     else{
                         logger.error("File could not be visited file={}", file, e);
                     }
+                    stats.incrementErrorCount();
                     return FileVisitResult.CONTINUE;
                 }
                 @Override

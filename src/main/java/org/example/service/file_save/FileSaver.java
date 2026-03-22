@@ -29,7 +29,7 @@ public class FileSaver {
             if(!file.exists()){
                 Optional<Long> id = fileInfoGetter.getEntityId(info);
                 id.ifPresent(repo.get(info.getFileType())::delete);
-                stats.getDeletedCount().incrementAndGet();
+                stats.incrementDeletedCount();
             }
         }));
     }
@@ -42,16 +42,16 @@ public class FileSaver {
                inDbFileInfo.ifPresent(inDbInfo -> {
                    if(inDbInfo.getMetadata().getLastModificationTime().toMillis() != fileInfo.getMetadata().getLastModificationTime().toMillis()){
                        repo.update(id, fileInfo);
-                       stats.getModifiedCount().incrementAndGet();
+                       stats.incrementModifiedCount();
                    }
                    else{
-                       stats.getSkippedCount().incrementAndGet();
+                       stats.incrementSkippedCount();
                    }
                });
             },
             () -> {
                 repo.save(fileInfo);
-                stats.getNewCount().incrementAndGet();
+                stats.incrementNewCount();
             }
         );
 

@@ -7,16 +7,14 @@ import org.example.service.file_save.FileCrawler;
 import org.example.service.file_search.SearchEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:1420")
 public class EndpointController {
     private static final Logger logger = LoggerFactory.getLogger(EndpointController.class);
     private final SearchEngine searchEngine;
@@ -45,7 +43,7 @@ public class EndpointController {
         return ans;
     }
 
-    @PostMapping("/ignore_extension_rules")
+    @PostMapping("/post_ignore_extension_rules")
     public void manageIgnoreExtensionRules(@RequestParam String extension, @RequestParam int type){
         switch(type){
             case 0 -> engineRules.resetIgnoreExtensions();
@@ -54,7 +52,7 @@ public class EndpointController {
         }
     }
 
-    @PostMapping("/ignore_directory_rules")
+    @PostMapping("/post_ignore_directory_rules")
     public void manageIgnoreDirectoryRules(@RequestParam String directory, @RequestParam int type){
         switch(type){
             case 0 -> engineRules.resetIgnorePaths();
@@ -63,7 +61,7 @@ public class EndpointController {
         }
     }
 
-    @PostMapping("/root_directory_rules")
+    @PostMapping("/post_root_directory_rules")
     public void manageRootDirectoryRules(@RequestParam String directory, @RequestParam int type){
         switch(type){
             case 0 -> engineRules.resetRootDirs();
@@ -71,5 +69,18 @@ public class EndpointController {
             case 2 -> engineRules.deleteRootDir(directory);
         }
     }
+    @PostMapping("/get_ignore_extension_rules")
+    public List<String> manageIgnoreExtensionRules(){
+        return engineRules.getIgnoreExtensions();
+    }
 
+    @PostMapping("/get_ignore_directory_rules")
+    public List<String> manageIgnoreDirectoryRules(){
+        return engineRules.getIgnorePaths();
+    }
+
+    @PostMapping("/get_root_directory_rules")
+    public List<String> manageRootDirectoryRules(){
+        return engineRules.getRootDirs();
+    }
 }

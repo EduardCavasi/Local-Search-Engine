@@ -19,7 +19,7 @@ public class FileInfo {
 
     public FileInfo(File file, BasicFileAttributes attr) {
         this.fileName = file.getName();
-        this.parentDirectoryPath = file.getParent();
+        this.parentDirectoryPath = file.getParent().replace('\\', '/');
         if (this.fileName.startsWith(".")) {
             this.fileExtension = "";
         }

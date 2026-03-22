@@ -21,5 +21,6 @@ public class SearchQuery {
         for (int i = 0; i < parameters.size(); i++) {
             stmt.setObject(i + 1, parameters.get(i));
         }
+        //System.out.println(stmt);
     }
 }
