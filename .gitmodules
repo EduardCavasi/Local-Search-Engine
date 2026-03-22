@@ -1,0 +1,3 @@
+[submodule "Local-Search-Engine-Frontend"]
+	path = Local-Search-Engine-Frontend
+	url = https://github.com/EduardCavasi/Local-Search-Engine-Frontend.git
