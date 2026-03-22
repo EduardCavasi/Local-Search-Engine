@@ -4,6 +4,7 @@ import org.example.model.general.EngineRules;
 import org.example.model.preview.FilePreview;
 import org.example.model.search.SearchParams;
 import org.example.service.file_save.FileCrawler;
+import org.example.service.file_save.IndexingStats;
 import org.example.service.file_search.SearchEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,12 @@ public class EndpointController {
     private final SearchEngine searchEngine;
     private final FileCrawler fileCrawler;
     private final EngineRules engineRules;
-    public EndpointController(FileCrawler fileCrawler, SearchEngine searchEngine, EngineRules engineRules) {
+    private final IndexingStats indexingStats;
+    public EndpointController(FileCrawler fileCrawler, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats) {
         this.searchEngine = searchEngine;
         this.fileCrawler = fileCrawler;
         this.engineRules = engineRules;
+        this.indexingStats = indexingStats;
     }
 
     @PostMapping("/index")
@@ -82,5 +85,10 @@ public class EndpointController {
     @PostMapping("/get_root_directory_rules")
     public List<String> manageRootDirectoryRules(){
         return engineRules.getRootDirs();
+    }
+
+    @GetMapping("/get_indexing_report")
+    public IndexingStats getIndexingStats() {
+        return indexingStats;
     }
 }
