@@ -38,7 +38,7 @@ public class PreviewBuilder {
         contentSnippet = stripHeadlineMarkup(contentSnippet);
 
         String filePath = (parentPath != null && fileName != null)
-                ? parentPath + File.separator + fileName
+                ? parentPath + '/' + fileName
                 : (fileName != null ? fileName : "");
 
         if(contentSnippet.isEmpty()){

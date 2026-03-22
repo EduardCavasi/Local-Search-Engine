@@ -24,7 +24,7 @@ public class FileSaver {
         Optional<List<FileInfo>> fileInfos = fileInfoGetter.getAll();
 
         fileInfos.ifPresent(infos -> infos.forEach(info -> {
-            String fullPath = info.getParentDirectoryPath() + File.separator + info.getFileName();
+            String fullPath = info.getParentDirectoryPath() + '/' + info.getFileName();
             File file = new File(fullPath);
             if(!file.exists()){
                 Optional<Long> id = fileInfoGetter.getEntityId(info);
