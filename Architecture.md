@@ -55,8 +55,8 @@ flowchart TB
     User((User))
     User -->|"Uses"| FE
 
-    external((Local File System))
-    BE -->|Accesses| external
+    EXT[(Local File System)]
+    BE -->|"Accesses"| EXT
 
 
     class FE,BE,DB blackBox
