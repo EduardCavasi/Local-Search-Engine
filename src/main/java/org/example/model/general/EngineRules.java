@@ -35,10 +35,6 @@ public class EngineRules {
     private final List<String> ignoreExtensions = new ArrayList<>();
     @Getter
     private final List<String> rootDirs = new ArrayList<>();
-    @Getter
-    @Setter
-    private Long scanId;
-
 
     private static final List<String> INITIAL_IGNORE_PATHS = List.of(
         "C:/Windows",
@@ -57,8 +53,6 @@ public class EngineRules {
     private static final List<String> INITIAL_ROOT_DIRS = List.of(
             "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/main/java"
     );
-
-    private static final Long INITIAL_SCAN_ID = 0L;
 
     public EngineRules(ObjectMapper mapper) {
         this.mapper = mapper;
@@ -80,7 +74,6 @@ public class EngineRules {
                 this.rootDirs.clear();
                 this.rootDirs.addAll(loaded.rootDirs);
 
-                this.scanId = loaded.scanId;
                 logger.info("Loaded engine rules from {}", SAVE_FILE);
             } catch (IOException e) {
                 resetAll();
@@ -158,13 +151,9 @@ public class EngineRules {
         rootDirs.clear();
         rootDirs.addAll(INITIAL_ROOT_DIRS);
     }
-    private void resetScanId(){
-        scanId = INITIAL_SCAN_ID;
-    }
     private void resetAll(){
         resetRootDirs();
         resetIgnorePaths();
         resetIgnoreExtensions();
-        resetScanId();
     }
 }

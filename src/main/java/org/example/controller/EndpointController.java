@@ -3,7 +3,7 @@ package org.example.controller;
 import org.example.model.general.EngineRules;
 import org.example.model.preview.FilePreview;
 import org.example.model.search.SearchParams;
-import org.example.service.file_save.FileCrawler;
+import org.example.service.file_save.IndexingService;
 import org.example.service.file_save.IndexingStats;
 import org.example.service.file_search.SearchEngine;
 import org.slf4j.Logger;
@@ -23,12 +23,12 @@ import java.util.Optional;
 public class EndpointController {
     private static final Logger logger = LoggerFactory.getLogger(EndpointController.class);
     private final SearchEngine searchEngine;
-    private final FileCrawler fileCrawler;
+    private final IndexingService indexingService;
     private final EngineRules engineRules;
     private final IndexingStats indexingStats;
-    public EndpointController(FileCrawler fileCrawler, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats) {
+    public EndpointController(IndexingService indexingService, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats) {
         this.searchEngine = searchEngine;
-        this.fileCrawler = fileCrawler;
+        this.indexingService = indexingService;
         this.engineRules = engineRules;
         this.indexingStats = indexingStats;
     }
@@ -36,7 +36,7 @@ public class EndpointController {
     /**endpoint for starting indexing*/
     @PostMapping("/index")
     public void startIndexing(){
-        fileCrawler.storeFileSystemSnapshot();
+        indexingService.storeFileSystemSnapshot();
     }
 
     /**endpoint for searching by receiving a SearchParams object*/

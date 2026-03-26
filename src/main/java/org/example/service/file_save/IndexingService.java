@@ -1,10 +1,12 @@
 package org.example.service.file_save;
 
+import jakarta.annotation.PostConstruct;
 import org.example.model.general.EngineRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -20,15 +22,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Crawls through root directories and reconciles the file system with the database
  */
 @Service
-public class FileCrawler {
-    private final Logger logger = LoggerFactory.getLogger(FileCrawler.class);
+public class IndexingService {
+    private final Logger logger = LoggerFactory.getLogger(IndexingService.class);
     private final FileProcessor fileProcessor;
     private final EngineRules engineRules;
     private final IndexingStats stats;
-    public FileCrawler(FileProcessor fileProcessor, EngineRules engineRules, IndexingStats stats) {
+    private final IndexingJobId indexingJobId;
+    public IndexingService(FileProcessor fileProcessor, EngineRules engineRules, IndexingStats stats, IndexingJobId indexingJobId) {
         this.fileProcessor = fileProcessor;
         this.engineRules = engineRules;
         this.stats = stats;
+        this.indexingJobId = indexingJobId;
     }
 
     /**
@@ -39,7 +43,7 @@ public class FileCrawler {
      */
     public void storeFileSystemSnapshot(){
         //increment the scan ID
-        engineRules.setScanId(engineRules.getScanId() + 1);
+        indexingJobId.incrementJobId();
         AtomicInteger fileCount = new AtomicInteger(0);
         List<Path> rootDirs = engineRules.getRootDirs().stream().map(Path::of).toList();
         logger.info("Executing indexing for directories: {}", rootDirs);
@@ -61,7 +65,7 @@ public class FileCrawler {
             }
             finally {
                 workers.shutdown();
-                fileProcessor.deleteAllFilesNotPresent(stats, engineRules.getScanId());
+                fileProcessor.deleteAllFilesNotPresent(stats, indexingJobId.getScanId());
                 stats.report();
             }
         });
@@ -86,7 +90,7 @@ public class FileCrawler {
                         if(count % 100 == 0){
                             stats.progress(count);
                         }
-                        fileProcessor.processFile(file, attrs, stats, engineRules.getScanId());
+                        fileProcessor.processFile(file, attrs, stats, indexingJobId.getScanId());
                     }
                     else{
                         stats.incrementIgnoredCount();
