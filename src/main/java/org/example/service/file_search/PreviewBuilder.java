@@ -11,8 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Uses the FilePreviewRenderer implementations in order to build the file preview of all files
+ * It delegates the building of the preview to the corresponding renderer based on file type.
+ */
 @Component
 public class PreviewBuilder {
+    /**maps each file type with the corresponding renderer*/
     private final Map<FileType, FilePreviewRenderer> renderers;
 
     public PreviewBuilder(List<FilePreviewRenderer> rendererList) {

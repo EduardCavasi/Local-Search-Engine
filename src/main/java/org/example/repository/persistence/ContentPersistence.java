@@ -9,6 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+/**
+ * Repository implementation for accessing content_info table
+ */
 @Component
 public class ContentPersistence implements IPersistence<Long, String> {
     private static final Logger logger = LoggerFactory.getLogger(ContentPersistence.class);

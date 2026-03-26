@@ -10,6 +10,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Implementation of database connection
+ * Pool of connection using HikariCP
+ * Database properties taken from db.properties file
+ * In case data source connection fails a custom DatabaseException is thrown and the exectution fails
+ */
 @Component
 public class DatabaseConnection implements IDataSource {
     private static final HikariConfig config = new HikariConfig();

@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Optional;
 import java.nio.file.attribute.FileTime;
 
+/**
+ * READ Repository implementation
+ * Support GET_BY_ID, GET_ALL, GET_ENTITY_ID
+ */
 @Repository
 public class FileInfoGetter implements IFileInfoGetter {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoGetter.class);

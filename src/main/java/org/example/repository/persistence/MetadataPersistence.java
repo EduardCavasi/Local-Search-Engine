@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import java.sql.*;
 import java.util.Optional;
 
+/**
+ * Repository implementation for accessing metadata table
+ */
 @Component
 public class MetadataPersistence implements IPersistence<Long, Metadata> {
     private static final Logger logger = LoggerFactory.getLogger(MetadataPersistence.class);

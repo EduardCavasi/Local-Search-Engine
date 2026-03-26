@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 
+/**
+ * FileInfo object for TEXTUAL files
+ * Besides the FileInfo fields it contains a content field containing the raw text from the file
+ * If the file can not be read a warning is logged and the content is initialized as empty
+ */
 @Getter
 @Setter
 public class TextualFileInfo extends FileInfo {

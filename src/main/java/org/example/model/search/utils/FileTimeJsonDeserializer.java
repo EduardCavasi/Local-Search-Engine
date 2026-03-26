@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
+/**
+ * JsonDeserializer for FileTime fields
+ * Used when constructing a SeachParams object from the JSON received at one of the endpoints
+ */
 public class FileTimeJsonDeserializer extends JsonDeserializer<FileTime> {
     @Override
     public FileTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

@@ -15,6 +15,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Main responsible for file indexing
+ * Crawls through root directories and reconciles the file system with the database
+ */
 @Service
 public class FileCrawler {
     private final Logger logger = LoggerFactory.getLogger(FileCrawler.class);
@@ -27,6 +31,12 @@ public class FileCrawler {
         this.stats = stats;
     }
 
+    /**
+     * Method for reconciling the root directories with what we already have in the database(incremental indexing)
+     * Creates a background thread for indexing which does 2 things:
+     * 1. uses fileProcessor.deleteAllFilesNotPresent(stats); to delete all the files present in the database, but deleted from the file system
+     * 2. Creates a thread for crawling through each root directory from EngineRules
+     */
     public void storeFileSystemSnapshot(){
         AtomicInteger fileCount = new AtomicInteger(0);
         List<Path> rootDirs = engineRules.getRootDirs().stream().map(Path::of).toList();
@@ -59,6 +69,13 @@ public class FileCrawler {
         logger.info("Finished indexing for directories: {}", rootDirs);
     }
 
+    /**
+     * Method for crawling recursively through a root directory
+     * Each file is processed using fileProcessor.processFile(file, attrs, stats);
+     * Cuts the crawling for directories to be ignored(from EngineRules)
+     * Identifies SYMLINK LOOPS and UNACCESSIBLE FILES and logs a warning for each of them
+     * Logs the indexing statistics(IndexingStats) every 100 processed files.
+     */
     private void crawlDirectory(Path root, AtomicInteger fileCount) {
         try {
             Files.walkFileTree(root, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE ,new SimpleFileVisitor<>() {

@@ -11,6 +11,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+/**
+ * Repository implementation for accessing file_info table
+ */
 @Component
 public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileInfoRetrieval<Long, FileInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoPersistence.class);

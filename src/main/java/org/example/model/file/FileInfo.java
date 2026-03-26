@@ -7,6 +7,9 @@ import lombok.Setter;
 import java.io.File;
 import java.nio.file.attribute.BasicFileAttributes;
 
+/**
+ * Model class containing general file information and metadata
+ */
 @AllArgsConstructor
 @Getter
 @Setter

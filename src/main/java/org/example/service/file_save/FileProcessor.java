@@ -15,9 +15,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class for: indexing a file and deleting files from database
+ * Uses FileSaver capabilities for deleting and saving.
+ */
 @Service
 public class FileProcessor {
     private final Logger logger = LoggerFactory.getLogger(FileProcessor.class);
+    /**maps each file type with the corresponding repository*/
     private final Map<FileType, IRepository<Long, ? extends FileInfo>> repositories;
     private final FileSaver fileSaver;
     private final Tika tika;
@@ -29,10 +34,12 @@ public class FileProcessor {
         this.tika = tika;
     }
 
+    /**deletes all files present in DB but not in file system*/
     public void deleteAllFilesNotPresent(IndexingStats stats){
         fileSaver.deleteAllFilesNotPresent(repositories, stats);
     }
 
+    /**method which delegates the saving responsibility for each type of file to the corresponding repository*/
     public void processFile(Path file, BasicFileAttributes attrs, IndexingStats stats){
         try {
             FileType fileType = FileType.UNKNOWN;

@@ -16,7 +16,11 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * General Engine Rules which can be modified by the controller and are used inside the file search service
+ * Include paths to be ignored, file extensions to be ignored and default root folders to be indexed
+ * On construction, rules taken from engine_rules.json and on destruction rules saved to same file. If file not accessible rules are initialized with default values.
+ */
 @Component
 public class EngineRules {
     private static final Logger logger = LoggerFactory.getLogger(EngineRules.class);

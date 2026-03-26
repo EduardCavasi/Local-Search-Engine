@@ -9,6 +9,11 @@ import org.example.model.search.utils.FileTimeJsonDeserializer;
 
 import java.nio.file.attribute.FileTime;
 
+/**
+ * Class containing all the possible search parameters usable by the search engine
+ * When the search uses file metadata the field needsMetadata = true
+ * When the search uses file content the field needsContent = true
+ */
 @NoArgsConstructor
 @Getter
 @Setter

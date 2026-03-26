@@ -14,13 +14,24 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Generic CREATE, UPDATE, DELETE repository implementation
+ * E -> an extension of the FileInfo class(TextualFileInfo, MediaFileInfo, PdfFileInfo etc)
+ * P -> the type of the extra field that differences the classes extending FileInfo (String for TextualFileInfo)
+ * All the operations are implemented as transactions. If one of the parts of an operations fails, the connection rollbacks.
+ */
 public class FileRepository<E extends FileInfo, P> implements IRepository<Long, E> {
 
     private final Logger logger = LoggerFactory.getLogger(FileRepository.class);
+    /**Datasource*/
     private final IDataSource dataSource;
+    /**file_info repository*/
     private final FileInfoPersistence fileInfoPersistence;
+    /**metadata repository*/
     private final IPersistence<Long, Metadata> metadataPersistence;
+    /**plug in repository for the field that differences the classes extending FileInfo*/
     private final IPersistence<Long, P> plugInPersistence;
+    /**getter function for extracting the field that differences the classes extending FileInfo*/
     private final Function<E, P> payloadExtractor;
 
     public FileRepository(IDataSource dataSource,

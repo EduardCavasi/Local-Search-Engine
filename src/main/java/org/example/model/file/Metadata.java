@@ -7,6 +7,9 @@ import lombok.Setter;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 
+/**
+ * Model class containing metadata extracted from BasicFileAttributes object corresponding to a file
+ */
 @AllArgsConstructor
 @Getter
 @Setter

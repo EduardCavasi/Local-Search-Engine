@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Class which uses the repositories in order to index files
+ */
 @Service
 public class FileSaver {
     private static final Logger logger = LoggerFactory.getLogger(FileSaver.class);
@@ -20,6 +23,12 @@ public class FileSaver {
     public FileSaver(IFileInfoGetter fileInfoGetter){
         this.fileInfoGetter = fileInfoGetter;
     }
+
+    /**
+     * Method which deletes all files present in DB but not in file system
+     * Gets all the files currently in database and sees if their path exists in the file system
+     * If not, the file is deleted from db. Not very efficient yet...
+     */
     public void deleteAllFilesNotPresent(Map<FileType, IRepository<Long, ? extends FileInfo>> repo, IndexingStats stats) {
         Optional<List<FileInfo>> fileInfos = fileInfoGetter.getAll();
 
@@ -33,6 +42,14 @@ public class FileSaver {
             }
         }));
     }
+
+    /**
+     * Method which indexes a file.
+     * The file is analyzed and falls within one of three categories:
+     *  * 1. NOT INDEXED YET => save
+     *  * 2. INDEXED, BUT MODIFIED => update
+     *  * 3. INDEXED AND NOT MODIFIED => skip
+     */
     public <E extends FileInfo> void addFile(E fileInfo, IRepository<Long, E> repo, IndexingStats stats) {
 
         Optional<Long> fileId = fileInfoGetter.getEntityId(fileInfo);

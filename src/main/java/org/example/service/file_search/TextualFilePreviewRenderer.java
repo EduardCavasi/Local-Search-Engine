@@ -15,6 +15,9 @@ import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Implementation of FilePreviewRendederer for TEXTUAL files
+ */
 @Component
 @NoArgsConstructor
 public class TextualFilePreviewRenderer implements FilePreviewRenderer {
@@ -25,6 +28,10 @@ public class TextualFilePreviewRenderer implements FilePreviewRenderer {
         return FileType.TEXTUAL_FILE;
     }
 
+    /**
+     * gets file_name, parent_directory_path and preview_content from ResultSet object
+     * if the preview_content is empty it reads the first 30 words from the file
+     */
     @Override
     public FilePreview buildPreview(ResultSet rs) {
         String fileName = getString(rs, "file_name");

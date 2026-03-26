@@ -13,6 +13,9 @@ import org.example.repository.persistence.MetadataPersistence;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Config class for tika bean and textualFileRepository bean
+ */
 @Configuration
 public class BeanConfig {
 

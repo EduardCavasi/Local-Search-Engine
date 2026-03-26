@@ -6,6 +6,9 @@ import org.example.model.preview.FilePreview;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Interface for building FilePreviews out of ResultSet objects
+ */
 public interface FilePreviewRenderer {
     FileType getSupportedType();
 

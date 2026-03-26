@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Reporting class which keeps the number of MODIFIED, SKIPPED, NEW, ERROR, IGNORED, NON-TEXTUAL, DELETED files
+ * encountered during one indexing. After the indexing is finished these stats are displayed and then they are reset.
+ */
 @Component
 @Getter
 public class IndexingStats {

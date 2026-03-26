@@ -12,6 +12,16 @@ import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The class that executes the query corresponding to a SearchParams object
+ * FLOW:
+ * input: SearchParams object
+ * The input is sent to QueryBuilder => SearchQuery
+ * A connection to the database is made and a statement is constructed based on the SearchQuery's body
+ * The parameters of the SearchQuery object are bound to the statement
+ * The statement is executed => ResultSet
+ * The ResultSet is sent to PreviewBuilder => List of FilePrevie
+ */
 @Service
 public class SearchEngine {
     private static final Logger logger = LoggerFactory.getLogger(SearchEngine.class);

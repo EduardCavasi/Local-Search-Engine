@@ -11,12 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**Class for processing a SearchParams object and transforming it into a SearchQuery object*/
 @Component
 @NoArgsConstructor
 public class QueryBuilder {
     private static final int PREVIEW_WORDS_BEFORE = 15;
     private static final int PREVIEW_WORDS_AFTER = 15;
 
+    /**this function accomplishes the goal of the class
+     * Input: SearchParams object
+     * Return: SearchQuery with the parameterized SQL and the parameters
+     */
     public SearchQuery buildSearchQuery(SearchParams params) {
         StringBuilder sql = new StringBuilder();
         boolean contentSearchWithQuery = params.isNeedsContent()
