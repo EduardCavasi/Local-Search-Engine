@@ -38,6 +38,8 @@ public class FileCrawler {
      * 2. Creates a thread for crawling through each root directory from EngineRules
      */
     public void storeFileSystemSnapshot(){
+        //increment the scan ID
+        engineRules.setScanId(engineRules.getScanId() + 1);
         AtomicInteger fileCount = new AtomicInteger(0);
         List<Path> rootDirs = engineRules.getRootDirs().stream().map(Path::of).toList();
         logger.info("Executing indexing for directories: {}", rootDirs);
@@ -46,8 +48,6 @@ public class FileCrawler {
         executorService.submit(() -> {
             ExecutorService workers = Executors.newFixedThreadPool(4);
             try {
-                fileProcessor.deleteAllFilesNotPresent(stats);
-
                 List<Callable<Void>> tasks = rootDirs.stream().map(
                         dir -> (Callable<Void>) () -> {
                             crawlDirectory(dir, fileCount);
@@ -61,7 +61,7 @@ public class FileCrawler {
             }
             finally {
                 workers.shutdown();
-                executorService.shutdown();
+                fileProcessor.deleteAllFilesNotPresent(stats, engineRules.getScanId());
                 stats.report();
             }
         });
@@ -86,7 +86,7 @@ public class FileCrawler {
                         if(count % 100 == 0){
                             stats.progress(count);
                         }
-                        fileProcessor.processFile(file, attrs, stats);
+                        fileProcessor.processFile(file, attrs, stats, engineRules.getScanId());
                     }
                     else{
                         stats.incrementIgnoredCount();

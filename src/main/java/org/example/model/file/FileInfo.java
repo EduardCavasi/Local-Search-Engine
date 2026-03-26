@@ -14,13 +14,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 @Getter
 @Setter
 public class FileInfo {
+    private Long fileId;
     private String fileName;
     private String parentDirectoryPath;
     private Metadata metadata;
     private String fileExtension;
     private FileType fileType;
 
-    public FileInfo(File file, BasicFileAttributes attr) {
+    public FileInfo(File file, BasicFileAttributes attr, Long scanId) {
         this.fileName = file.getName();
         this.parentDirectoryPath = file.getParent().replace('\\', '/');
         if (this.fileName.startsWith(".")) {
@@ -29,13 +30,15 @@ public class FileInfo {
         else {
             this.fileExtension = this.fileName.substring(this.fileName.lastIndexOf(".") + 1);
         }
-        this.metadata = new Metadata(attr);
+        this.metadata = new Metadata(attr, scanId);
     }
 
-    public FileInfo(String fileName, String parentDirectoryPath, String fileExtension, FileType fileType) {
+    public FileInfo(Long id, String fileName, String parentDirectoryPath, String fileExtension, FileType fileType) {
+        this.fileId = id;
         this.fileName = fileName;
         this.parentDirectoryPath = parentDirectoryPath;
         this.fileExtension = fileExtension;
         this.fileType = fileType;
     }
+
 }

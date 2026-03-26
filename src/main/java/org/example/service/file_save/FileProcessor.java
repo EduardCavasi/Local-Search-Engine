@@ -35,12 +35,12 @@ public class FileProcessor {
     }
 
     /**deletes all files present in DB but not in file system*/
-    public void deleteAllFilesNotPresent(IndexingStats stats){
-        fileSaver.deleteAllFilesNotPresent(repositories, stats);
+    public void deleteAllFilesNotPresent(IndexingStats stats, Long scanId){
+        fileSaver.deleteAllFilesNotPresent(stats, scanId);
     }
 
     /**method which delegates the saving responsibility for each type of file to the corresponding repository*/
-    public void processFile(Path file, BasicFileAttributes attrs, IndexingStats stats){
+    public void processFile(Path file, BasicFileAttributes attrs, IndexingStats stats, Long scanId){
         try {
             FileType fileType = FileType.UNKNOWN;
             String type = tika.detect(file);
@@ -49,11 +49,11 @@ public class FileProcessor {
             }
             switch (fileType) {
                 case TEXTUAL_FILE -> {
-                    TextualFileInfo textualFileInfo = new TextualFileInfo(file.toFile(), attrs);
+                    TextualFileInfo textualFileInfo = new TextualFileInfo(file.toFile(), attrs, scanId);
                     @SuppressWarnings("unchecked")
                     IRepository<Long, TextualFileInfo> repo =
                             (IRepository<Long, TextualFileInfo>) repositories.get(FileType.TEXTUAL_FILE);
-                    fileSaver.addFile(textualFileInfo, repo, stats);
+                    fileSaver.addFile(textualFileInfo, repo, stats, scanId);
                 }
                 default -> stats.incrementNonTextualCount();
             }

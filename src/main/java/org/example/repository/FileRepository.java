@@ -26,7 +26,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
     /**Datasource*/
     private final IDataSource dataSource;
     /**file_info repository*/
-    private final FileInfoPersistence fileInfoPersistence;
+    private final IPersistence<Long, FileInfo> fileInfoPersistence;
     /**metadata repository*/
     private final IPersistence<Long, Metadata> metadataPersistence;
     /**plug in repository for the field that differences the classes extending FileInfo*/
@@ -35,7 +35,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
     private final Function<E, P> payloadExtractor;
 
     public FileRepository(IDataSource dataSource,
-                          FileInfoPersistence fileInfoPersistence,
+                          IPersistence<Long, FileInfo> fileInfoPersistence,
                           IPersistence<Long, Metadata> metadataPersistence,
                           IPersistence<Long, P> plugInPersistence,
                           Function<E, P> payloadExtractor) {

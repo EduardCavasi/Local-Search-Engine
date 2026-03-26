@@ -2,6 +2,7 @@ package org.example.config;
 
 import org.apache.tika.Tika;
 import org.example.database.IDataSource;
+import org.example.model.file.FileInfo;
 import org.example.model.file.Metadata;
 import org.example.model.file.TextualFileInfo;
 import org.example.repository.FileRepository;
@@ -27,17 +28,16 @@ public class BeanConfig {
     @Bean
     public IRepository<Long, TextualFileInfo> textualFileRepository(
             IDataSource dataSource,
-            FileInfoPersistence fileInfoPersistence,
-            MetadataPersistence metadataPersistence,
-            ContentPersistence contentPersistence
+            IPersistence<Long, FileInfo> fileInfoPersistence,
+            IPersistence<Long, Metadata> metadataPersistence,
+            IPersistence<Long, String> contentPersistence
     ) {
-        IPersistence<Long, Metadata> metadataPlugin = metadataPersistence;
-        IPersistence<Long, String> contentPlugin = contentPersistence;
+
         return new FileRepository<>(
                 dataSource,
                 fileInfoPersistence,
-                metadataPlugin,
-                contentPlugin,
+                metadataPersistence,
+                contentPersistence,
                 TextualFileInfo::getContent
         );
     }

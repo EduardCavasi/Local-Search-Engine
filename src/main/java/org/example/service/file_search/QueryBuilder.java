@@ -41,7 +41,7 @@ public class QueryBuilder {
         if (params.isNeedsContent()) {
             sql.append(" JOIN content_info ON file_info.file_id = content_info.file_id\n");
         }
-        if(params.isNeedsContent()){
+        if(contentSearchWithQuery){
             sql.append(" CROSS JOIN q\n");
         }
 

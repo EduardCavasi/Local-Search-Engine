@@ -82,5 +82,9 @@ public class IndexingStats {
     public void incrementNonTextualCount(){
         nonTextualCount.incrementAndGet();
     }
+    public void setDeletedCount(int x){
+        deletedCount.set(x);
+    }
+
 }
 

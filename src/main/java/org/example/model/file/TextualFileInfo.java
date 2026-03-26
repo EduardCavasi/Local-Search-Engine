@@ -20,8 +20,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class TextualFileInfo extends FileInfo {
     private final Logger logger = LoggerFactory.getLogger(TextualFileInfo.class);
     private String content;
-    public TextualFileInfo(File file, BasicFileAttributes attr) {
-        super(file, attr);
+    public TextualFileInfo(File file, BasicFileAttributes attr, Long scanId) {
+        super(file, attr, scanId);
         this.content = this.readContent(file);
         super.setFileType(FileType.TEXTUAL_FILE);
     }

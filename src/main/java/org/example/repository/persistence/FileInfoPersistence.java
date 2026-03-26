@@ -15,7 +15,7 @@ import java.util.Optional;
  * Repository implementation for accessing file_info table
  */
 @Component
-public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileInfoRetrieval<Long, FileInfo> {
+public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoPersistence.class);
     private static final String INSERT_SQL =
             "INSERT INTO file_info (parent_directory_path, file_type, file_extension, file_name) VALUES (?, ?, ?, ?)";
@@ -23,8 +23,6 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileI
             "DELETE FROM file_info WHERE file_info.file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE file_info SET parent_directory_path = ?, file_type = ?, file_extension = ?, file_name = ? WHERE file_info.file_id = ?";
-    private static final String RETRIEVAL_SQL =
-            "SELECT file_id from file_info WHERE file_info.parent_directory_path = ? AND file_name = ?";
     @Override
     public Optional<Long> save(Connection conn, Long id,  FileInfo fileInfo) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -73,18 +71,5 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo>, IFileI
             }
         }
         return true;
-    }
-
-    @Override
-    public Optional<Long> getEntityId(Connection conn, FileInfo entity) throws SQLException {
-        try(PreparedStatement stmt = conn.prepareStatement(RETRIEVAL_SQL)){
-            stmt.setString(1, entity.getParentDirectoryPath());
-            stmt.setString(2, entity.getFileName());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return Optional.of(rs.getLong(1));
-            }
-            return Optional.empty();
-        }
     }
 }

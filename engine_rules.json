@@ -1,5 +1,6 @@
 {
   "ignorePaths" : [ "C:/Windows", "C:/eSupport", "C:/Program Files", "C:/Program Files (x86)", ".git", "node_modules", ".cache", ".svn", "__pycache__", "C:/$Recycle.Bin" ],
   "ignoreExtensions" : [ "tmp", "swp", "bak", "class", "o", "obj", "exe", "dll" ],
-  "rootDirs" : [ "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/main/java" ]
+  "rootDirs" : [ "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src" ],
+  "scanId" : 28
 }
