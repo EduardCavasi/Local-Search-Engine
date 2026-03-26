@@ -54,6 +54,9 @@ public class QueryBuilder {
             sql.append(" WHERE ");
             sql.append(conditions.stream().collect(Collectors.joining(" AND ")));
         }
+        if(contentSearchWithQuery){
+            sql.append(" ORDER BY ts_rank(content_info.searchable_content, q.query) DESC ");
+        }
         //limit the results to 50
         sql.append(" LIMIT 50\n");
         return new SearchQuery(sql.toString(), parameters);
