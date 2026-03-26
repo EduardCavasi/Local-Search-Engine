@@ -28,7 +28,7 @@ public class QueryBuilder {
                 && params.getQueryContent() != null && !params.getQueryContent().trim().isEmpty();
 
         if (contentSearchWithQuery) {
-            sql.append("WITH q as (SELECT phraseto_tsquery('simple', ?) AS query)\n")
+            sql.append("WITH q as (SELECT plainto_tsquery('simple', ?) AS query)\n")
                     .append("SELECT *, ts_headline('simple', content_info.raw_content, q.query, ")
                     .append("'MaxWords=").append(PREVIEW_WORDS_BEFORE + PREVIEW_WORDS_AFTER + 10)
                     .append(", MinWords=15') AS preview_content FROM file_info\n");
@@ -55,7 +55,7 @@ public class QueryBuilder {
             sql.append(conditions.stream().collect(Collectors.joining(" AND ")));
         }
         if(contentSearchWithQuery){
-            sql.append(" ORDER BY ts_rank(content_info.searchable_content, q.query) DESC ");
+            sql.append(" ORDER BY ts_rank_cd(content_info.searchable_content, q.query) DESC ");
         }
         //limit the results to 50
         sql.append(" LIMIT 50\n");
@@ -65,7 +65,7 @@ public class QueryBuilder {
     private void appendFileInfoConditions(SearchParams params, List<String> conditions, List<Object> parameters) {
         if (params.getQueryFileName() != null && !params.getQueryFileName().isEmpty()) {
             conditions.add("file_info.file_name LIKE ?");
-            parameters.add(params.getQueryFileName() + "%");
+            parameters.add("%" + params.getQueryFileName() + "%");
         }
         if (params.getQueryFileExtension() != null && !params.getQueryFileExtension().isEmpty()) {
             conditions.add("file_info.file_extension LIKE ?");
@@ -73,7 +73,7 @@ public class QueryBuilder {
         }
         if (params.getQueryFilePath() != null && !params.getQueryFilePath().isEmpty()) {
             conditions.add("file_info.parent_directory_path LIKE ?");
-            parameters.add(params.getQueryFilePath() + "%");
+            parameters.add("%" + params.getQueryFilePath() + "%");
         }
     }
 
@@ -107,15 +107,6 @@ public class QueryBuilder {
                 conditions.add("metadata.last_modified_time < ?");
             }
             parameters.add(toTimestamp(params.getQueryLastModified()));
-        }
-        if (params.getQueryLastAccessed() != null) {
-            if(params.isLastAccessedAfter()) {
-                conditions.add("metadata.last_access_time > ?");
-            }
-            else{
-                conditions.add("metadata.last_access_time < ?");
-            }
-            parameters.add(toTimestamp(params.getQueryLastAccessed()));
         }
     }
 

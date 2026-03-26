@@ -1,20 +1,16 @@
 package org.example.service.file_save;
 
-import jakarta.annotation.PostConstruct;
 import org.example.model.general.EngineRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -49,7 +45,7 @@ public class IndexingService {
         logger.info("Executing indexing for directories: {}", rootDirs);
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
+        Future<?> future = executorService.submit(() -> {
             ExecutorService workers = Executors.newFixedThreadPool(4);
             try {
                 List<Callable<Void>> tasks = rootDirs.stream().map(
@@ -69,6 +65,12 @@ public class IndexingService {
                 stats.report();
             }
         });
+        try{
+            future.get();
+        }
+        catch(InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+        }
         executorService.shutdown();
         logger.info("Finished indexing for directories: {}", rootDirs);
     }
