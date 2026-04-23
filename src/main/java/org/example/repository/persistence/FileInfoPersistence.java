@@ -19,8 +19,6 @@ public class FileInfoPersistence implements IPersistence<Long, FileInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoPersistence.class);
     private static final String INSERT_SQL =
             "INSERT INTO file_info (parent_directory_path, file_type, file_extension, file_name) VALUES (?, ?, ?, ?)";
-    private static final String DELETE_SQL =
-            "DELETE FROM file_info WHERE file_info.file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE file_info SET parent_directory_path = ?, file_type = ?, file_extension = ?, file_name = ? WHERE file_info.file_id = ?";
     @Override

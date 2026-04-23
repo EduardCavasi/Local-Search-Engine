@@ -17,8 +17,6 @@ public class ContentPersistence implements IPersistence<Long, String> {
     private static final Logger logger = LoggerFactory.getLogger(ContentPersistence.class);
     private static final String INSERT_SQL =
             "INSERT INTO content_info (file_id, raw_content) VALUES (?, ?)";
-    private static final String DELETE_SQL =
-            "DELETE FROM content_info WHERE file_id = ?";
     private static final String UPDATE_SQL =
             "UPDATE content_info SET raw_content = ? WHERE file_id = ?";
     @Override

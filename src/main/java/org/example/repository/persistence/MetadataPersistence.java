@@ -17,8 +17,7 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
 
     private static final String INSERT_SQL =
             "INSERT INTO metadata (file_id, creation_time, file_key, regular_file, symbolic_link, other_file, last_modified_time, size, scan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String DELETE_SQL =
-            "DELETE FROM metadata WHERE file_id = ?";
+
     private static final String UPDATE_SQL =
             "UPDATE metadata SET creation_time = ?, file_key = ?, regular_file = ?, symbolic_link = ?, other_file = ?, last_modified_time = ?, size = ?, scan_id = ? WHERE file_id = ?";
     @Override
