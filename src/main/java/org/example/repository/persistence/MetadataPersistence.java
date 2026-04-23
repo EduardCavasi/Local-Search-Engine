@@ -42,19 +42,6 @@ public class MetadataPersistence implements IPersistence<Long, Metadata> {
     }
 
     @Override
-    public boolean delete(Connection conn, Long id) throws SQLException {
-        try(PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)){
-            stmt.setLong(1, id);
-            int affected = stmt.executeUpdate();
-            if (affected == 0) {
-                logger.warn("Delete from table metadata had no effect!");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean update(Connection conn, Long id, Metadata metadata) throws SQLException {
         try(PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)){
             stmt.setObject(1, Timestamp.from(metadata.getCreationTime().toInstant()));

@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 /**
  * Generic CREATE, UPDATE, DELETE repository implementation
- * E -> an extension of the FileInfo class(TextualFileInfo, MediaFileInfo, PdfFileInfo etc)
+ * E -> an extension of the FileInfo class(TextualFileInfo, MediaFileInfo, PdfFileInfo etc.)
  * P -> the type of the extra field that differences the classes extending FileInfo (String for TextualFileInfo)
  * All the operations are implemented as transactions. If one of the parts of an operations fails, the connection rollbacks.
  */
@@ -82,33 +82,6 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
             logger.error("Failed to save fileName={}, parentDirectoryPath={}, fileType={}", fileInfo.getFileName(), fileInfo.getParentDirectoryPath(), fileInfo.getFileType(), e);
         }
         return fileId;
-    }
-
-    @Override
-    public void delete(Long id) {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false);
-            try {
-                boolean op1Succeed = fileInfoPersistence.delete(conn, id);
-                boolean op2Succeed = metadataPersistence.delete(conn, id);
-                boolean op3Succeed = plugInPersistence.delete(conn, id);
-                if (!(op1Succeed && op2Succeed && op3Succeed)) {
-                    conn.rollback();
-                } else {
-                    conn.commit();
-                }
-            }
-            catch (SQLException e) {
-                conn.rollback();
-                throw e;
-            }
-            finally {
-                conn.setAutoCommit(true);
-            }
-        }
-        catch (SQLException e) {
-            logger.error("Failed to delete file by id={}", id, e);
-        }
     }
 
     @Override

@@ -35,19 +35,6 @@ public class ContentPersistence implements IPersistence<Long, String> {
     }
 
     @Override
-    public boolean delete(Connection conn, Long id) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
-            stmt.setLong(1, id);
-            int affected = stmt.executeUpdate();
-            if(affected == 0) {
-                logger.warn("Delete from table content_info had no effect!");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean update(Connection conn, Long id, String newContent) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
             stmt.setString(1, newContent != null ? newContent : "");
