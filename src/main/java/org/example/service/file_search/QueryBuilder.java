@@ -1,8 +1,12 @@
 package org.example.service.file_search;
 
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
+import org.example.repository.persistence.RankInfoPersistence;
+import org.example.service.file_search.ranking.CombinedRanking;
+import org.example.service.file_search.ranking.RankingStrategy;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.attribute.FileTime;
@@ -13,10 +17,18 @@ import java.util.stream.Collectors;
 
 /**Class for processing a SearchParams object and transforming it into a SearchQuery object*/
 @Component
-@NoArgsConstructor
 public class QueryBuilder {
     private static final int PREVIEW_WORDS_BEFORE = 15;
     private static final int PREVIEW_WORDS_AFTER = 15;
+    private final RankInfoPersistence rankInfoPersistence;
+
+    @Setter
+    private RankingStrategy rankingStrategy;
+
+    public QueryBuilder(RankInfoPersistence rankInfoPersistence) {
+        rankingStrategy = new CombinedRanking();
+        this.rankInfoPersistence = rankInfoPersistence;
+    }
 
     /**this function accomplishes the goal of the class
      * Input: SearchParams object
@@ -39,6 +51,7 @@ public class QueryBuilder {
         if (params.isNeedsContent()) {
             sql.append(" JOIN content_info ON file_info.file_id = content_info.file_id\n");
         }
+        sql.append(" JOIN rank_info ON file_info.file_id = rank_info.file_id\n");
         if(contentSearchWithQuery){
             sql.append(" CROSS JOIN q\n");
         }
@@ -52,9 +65,9 @@ public class QueryBuilder {
             sql.append(" WHERE ");
             sql.append(conditions.stream().collect(Collectors.joining(" AND ")));
         }
-        if(contentSearchWithQuery){
-            sql.append(" ORDER BY ts_rank_cd(content_info.searchable_content, q.query) DESC ");
-        }
+
+        appendRanking(sql, contentSearchWithQuery);
+
         //limit the results to 50
         sql.append(" LIMIT 50\n");
         return new SearchQuery(sql.toString(), parameters);
@@ -142,6 +155,12 @@ public class QueryBuilder {
             }
             parameters.add(orConditions.stream().collect(Collectors.joining(" & ")));
         }
+    }
+
+    private void appendRanking(StringBuilder sql, Boolean contentSearchWithQuery){
+        sql.append(" ORDER BY ");
+        sql.append(rankingStrategy.getOrderByString(contentSearchWithQuery));
+        sql.append("\n");
     }
 
     private static Timestamp toTimestamp(FileTime fileTime) {
