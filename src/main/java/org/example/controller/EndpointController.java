@@ -129,4 +129,9 @@ public class EndpointController {
     public IndexingStats getIndexingStats() {
         return indexingStats;
     }
+
+    @PostMapping("/modify_ranking_algorithm")
+    public void modifyRankingAlgorithm(@RequestParam String type){
+        searchEngine.modifyRankingAlgorithm(type);
+    }
 }
