@@ -4,6 +4,7 @@ import org.apache.tika.Tika;
 import org.example.database.IDataSource;
 import org.example.model.file.FileInfo;
 import org.example.model.file.Metadata;
+import org.example.model.file.RankInfo;
 import org.example.model.file.TextualFileInfo;
 import org.example.repository.FileRepository;
 import org.example.repository.IRepository;
@@ -30,6 +31,7 @@ public class BeanConfig {
             IDataSource dataSource,
             IPersistence<Long, FileInfo> fileInfoPersistence,
             IPersistence<Long, Metadata> metadataPersistence,
+            IPersistence<Long, RankInfo> rankInfoPersistence,
             IPersistence<Long, String> contentPersistence
     ) {
 
@@ -37,6 +39,7 @@ public class BeanConfig {
                 dataSource,
                 fileInfoPersistence,
                 metadataPersistence,
+                rankInfoPersistence,
                 contentPersistence,
                 TextualFileInfo::getContent
         );

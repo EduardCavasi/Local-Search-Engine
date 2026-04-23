@@ -18,6 +18,7 @@ public class FileInfo {
     private String fileName;
     private String parentDirectoryPath;
     private Metadata metadata;
+    private RankInfo rankInfo;
     private String fileExtension;
     private FileType fileType;
 
@@ -31,6 +32,7 @@ public class FileInfo {
             this.fileExtension = this.fileName.substring(this.fileName.lastIndexOf(".") + 1);
         }
         this.metadata = new Metadata(attr, scanId);
+        this.rankInfo = new RankInfo(file, attr);
     }
 
     public FileInfo(Long id, String fileName, String parentDirectoryPath, String fileExtension, FileType fileType) {

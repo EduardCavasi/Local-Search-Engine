@@ -3,6 +3,7 @@ package org.example.repository;
 import org.example.database.IDataSource;
 import org.example.model.file.FileInfo;
 import org.example.model.file.Metadata;
+import org.example.model.file.RankInfo;
 import org.example.repository.persistence.IPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
     private final IPersistence<Long, FileInfo> fileInfoPersistence;
     /**metadata repository*/
     private final IPersistence<Long, Metadata> metadataPersistence;
+    /**rank_info repository*/
+    private final IPersistence<Long, RankInfo> rankInfoPersistence;
     /**plug in repository for the field that differences the classes extending FileInfo*/
     private final IPersistence<Long, P> plugInPersistence;
     /**getter function for extracting the field that differences the classes extending FileInfo*/
@@ -36,11 +39,13 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
     public FileRepository(IDataSource dataSource,
                           IPersistence<Long, FileInfo> fileInfoPersistence,
                           IPersistence<Long, Metadata> metadataPersistence,
+                          IPersistence<Long, RankInfo> rankInfoPersistence,
                           IPersistence<Long, P> plugInPersistence,
                           Function<E, P> payloadExtractor) {
         this.dataSource = dataSource;
         this.fileInfoPersistence = fileInfoPersistence;
         this.metadataPersistence = metadataPersistence;
+        this.rankInfoPersistence = rankInfoPersistence;
         this.plugInPersistence = plugInPersistence;
         this.payloadExtractor = payloadExtractor;
     }
@@ -63,8 +68,10 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
 
                 long id = fileId.get();
                 Optional<Long> fileIdMetadata = metadataPersistence.save(conn, id, fileInfo.getMetadata());
+                Optional<Long> fileIdRankInfo = rankInfoPersistence.save(conn, id, fileInfo.getRankInfo());
                 Optional<Long> fileIdPlugIn = plugInPersistence.save(conn, id, payloadExtractor.apply(fileInfo));
-                if (fileIdMetadata.isEmpty() || fileIdPlugIn.isEmpty()) {
+                if (fileIdMetadata.isEmpty() || fileIdPlugIn.isEmpty() || fileIdRankInfo.isEmpty()) {
+                    logger.warn("Save failed!");
                     conn.rollback();
                     return Optional.empty();
                 }
@@ -72,6 +79,7 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
                 conn.commit();
             }
             catch (SQLException e) {
+                logger.warn("Save failed!");
                 conn.rollback();
                 throw e;
             }
@@ -91,14 +99,17 @@ public class FileRepository<E extends FileInfo, P> implements IRepository<Long, 
             try {
                 boolean op1Succeed = fileInfoPersistence.update(conn, id, fileInfo);
                 boolean op2Succeed = metadataPersistence.update(conn, id, fileInfo.getMetadata());
-                boolean op3Succeed = plugInPersistence.update(conn, id, payloadExtractor.apply(fileInfo));
-                if (!(op1Succeed && op2Succeed && op3Succeed)) {
+                boolean op3Succeed = rankInfoPersistence.update(conn, id, fileInfo.getRankInfo());
+                boolean op4Succeed = plugInPersistence.update(conn, id, payloadExtractor.apply(fileInfo));
+                if (!(op1Succeed && op2Succeed && op3Succeed && op4Succeed)) {
+                    logger.warn("Update failed!");
                     conn.rollback();
                 } else {
                     conn.commit();
                 }
             }
             catch (SQLException e) {
+                logger.warn("Update failed!");
                 conn.rollback();
                 throw e;
             }
