@@ -154,4 +154,8 @@ public class EngineRules {
         resetIgnorePaths();
         resetIgnoreExtensions();
     }
+
+    public void deleteAllRootDirs(){
+        rootDirs.clear();
+    }
 }

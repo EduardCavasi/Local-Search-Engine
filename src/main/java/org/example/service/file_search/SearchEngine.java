@@ -38,7 +38,7 @@ public class SearchEngine {
     public Optional<List<FilePreview>> executeQuery(SearchParams params) {
         SearchQuery query = queryBuilder.buildSearchQuery(params);
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query.getSql())) {
+             PreparedStatement ps = conn.prepareStatement(query.getSql()))
             query.bindParameters(ps);
             logger.info("Executing query:\n{}", ps);
             ResultSet rs = ps.executeQuery();
