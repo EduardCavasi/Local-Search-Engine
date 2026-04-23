@@ -40,6 +40,7 @@ public class SearchEngine {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(query.getSql())) {
             query.bindParameters(ps);
+            logger.info("Executing query:\n{}", ps);
             ResultSet rs = ps.executeQuery();
             return Optional.of(previewBuilder.buildPreviews(rs));
         } catch (SQLException e) {

@@ -1,13 +1,16 @@
 package org.example.controller;
 
+import org.example.error.SearchRequestParseException;
 import org.example.model.general.EngineRules;
 import org.example.model.preview.FilePreview;
 import org.example.model.search.SearchParams;
 import org.example.service.file_save.IndexingService;
 import org.example.service.file_save.IndexingStats;
 import org.example.service.file_search.SearchEngine;
+import org.example.service.file_search.SearchRequestParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -26,11 +29,13 @@ public class EndpointController {
     private final IndexingService indexingService;
     private final EngineRules engineRules;
     private final IndexingStats indexingStats;
-    public EndpointController(IndexingService indexingService, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats) {
+    private final SearchRequestParser searchRequestParser;
+    public EndpointController(IndexingService indexingService, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats, SearchRequestParser searchRequestParser) {
         this.searchEngine = searchEngine;
         this.indexingService = indexingService;
         this.engineRules = engineRules;
         this.indexingStats = indexingStats;
+        this.searchRequestParser = new SearchRequestParser();
     }
 
     /**endpoint for starting indexing*/
@@ -41,15 +46,21 @@ public class EndpointController {
 
     /**endpoint for searching by receiving a SearchParams object*/
     @PostMapping("/search")
-    public List<FilePreview> executeSearchQuery(@RequestBody SearchParams searchParams){
-        logger.info("Executing search query: {}", searchParams);
-        Optional<List<FilePreview>> previews = searchEngine.executeQuery(searchParams);
-        List<FilePreview> ans = new ArrayList<>();
-        if(previews.isPresent()){
-            ans = previews.get();
+    public ResponseEntity<?> executeSearchQuery(@RequestBody String searchRequest){
+        logger.info("Parsing search query: {}", searchRequest);
+        try {
+            SearchParams searchParams = searchRequestParser.parse(searchRequest);
+            Optional<List<FilePreview>> previews = searchEngine.executeQuery(searchParams);
+            List<FilePreview> ans = new ArrayList<>();
+            if(previews.isPresent()){
+                ans = previews.get();
+            }
+            logger.info("Finished search query : {}, returning {} results", searchParams, ans.size());
+            return ResponseEntity.ok(ans);
         }
-        logger.info("Finished search query : {}, returning {} results", searchParams, ans.size());
-        return ans;
+        catch (SearchRequestParseException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     /**endpoint for modifying the ignore extensions engine rules
@@ -91,23 +102,24 @@ public class EndpointController {
             case 0 -> engineRules.resetRootDirs();
             case 1 -> engineRules.addRootDirs(directory);
             case 2 -> engineRules.deleteRootDir(directory);
+            case 3 -> engineRules.deleteAllRootDirs();
         }
     }
 
     /**endpoint for getting all the ignore extension engine rules*/
-    @PostMapping("/get_ignore_extension_rules")
+    @GetMapping("/get_ignore_extension_rules")
     public List<String> manageIgnoreExtensionRules(){
         return engineRules.getIgnoreExtensions();
     }
 
     /**endpoint for getting all the ignore directory engine rules*/
-    @PostMapping("/get_ignore_directory_rules")
+    @GetMapping("/get_ignore_directory_rules")
     public List<String> manageIgnoreDirectoryRules(){
         return engineRules.getIgnorePaths();
     }
 
     /**endpoint for getting all the root directory engine rules*/
-    @PostMapping("/get_root_directory_rules")
+    @GetMapping("/get_root_directory_rules")
     public List<String> manageRootDirectoryRules(){
         return engineRules.getRootDirs();
     }

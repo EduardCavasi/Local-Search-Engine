@@ -24,14 +24,12 @@ public class QueryBuilder {
      */
     public SearchQuery buildSearchQuery(SearchParams params) {
         StringBuilder sql = new StringBuilder();
-        boolean contentSearchWithQuery = params.isNeedsContent()
-                && params.getQueryContent() != null && !params.getQueryContent().trim().isEmpty();
-
+        boolean contentSearchWithQuery = params.isNeedsContent();
         if (contentSearchWithQuery) {
-            sql.append("WITH q as (SELECT plainto_tsquery('simple', ?) AS query)\n")
+            sql.append("WITH q as (SELECT to_tsquery('simple', ?) AS query)\n")
                     .append("SELECT *, ts_headline('simple', content_info.raw_content, q.query, ")
                     .append("'MaxWords=").append(PREVIEW_WORDS_BEFORE + PREVIEW_WORDS_AFTER + 10)
-                    .append(", MinWords=15') AS preview_content FROM file_info\n");
+                    .append(", MinWords=15, MaxFragments=3, FragmentDelimiter=\" ... \"') AS preview_content FROM file_info\n");
         } else {
             sql.append("SELECT * FROM file_info\n");
         }
@@ -64,16 +62,28 @@ public class QueryBuilder {
 
     private void appendFileInfoConditions(SearchParams params, List<String> conditions, List<Object> parameters) {
         if (params.getQueryFileName() != null && !params.getQueryFileName().isEmpty()) {
-            conditions.add("file_info.file_name LIKE ?");
-            parameters.add("%" + params.getQueryFileName() + "%");
+            List<String> orConditions = new ArrayList<>();
+            for(String queryFileName: params.getQueryFileName()) {
+                orConditions.add("file_info.file_name LIKE ?");
+                parameters.add("%" + queryFileName + "%");
+            }
+            conditions.add(" (" + orConditions.stream().collect(Collectors.joining(" OR ")) + ") ");
         }
         if (params.getQueryFileExtension() != null && !params.getQueryFileExtension().isEmpty()) {
-            conditions.add("file_info.file_extension LIKE ?");
-            parameters.add(params.getQueryFileExtension());
+            List<String> orConditions = new ArrayList<>();
+            for(String queryFileExtension: params.getQueryFileExtension()) {
+                orConditions.add("file_info.file_extension LIKE ?");
+                parameters.add(queryFileExtension);
+            }
+            conditions.add(" (" + orConditions.stream().collect(Collectors.joining(" OR ")) + ") ");
         }
         if (params.getQueryFilePath() != null && !params.getQueryFilePath().isEmpty()) {
-            conditions.add("file_info.parent_directory_path LIKE ?");
-            parameters.add("%" + params.getQueryFilePath() + "%");
+            List<String> orConditions = new ArrayList<>();
+            for(String queryFilePath: params.getQueryFilePath()) {
+                orConditions.add("file_info.parent_directory_path LIKE ?");
+                parameters.add("%" + queryFilePath + "%");
+            }
+            conditions.add(" (" + orConditions.stream().collect(Collectors.joining(" OR ")) + ") ");
         }
     }
 
@@ -81,32 +91,41 @@ public class QueryBuilder {
         if (!params.isNeedsMetadata()) {
             return;
         }
-        if (params.getQuerySize() != null && params.getQuerySize() != -1L) {
-            if(params.isGreaterSize()) {
-                conditions.add("metadata.size > ?");
+        if (params.getQuerySize() != null && !params.getQuerySize().isEmpty()) {
+            for(int i = 0; i < params.getQuerySize().size(); i++) {
+                List<Long> sizes = params.getQuerySize().get(i);
+                List<Character> signs = params.getQuerySizeSigns().get(i);
+                List<String> orConditions = new ArrayList<>();
+                for(int j = 0; j < sizes.size(); j++) {
+                    orConditions.add("metadata.size " + signs.get(j) + " ?");
+                    parameters.add(sizes.get(j));
+                }
+                conditions.add(" (" + orConditions.stream().collect(Collectors.joining(" OR ")) + ") ");
             }
-            else{
-                conditions.add("metadata.size < ?");
-            }
-            parameters.add(params.getQuerySize());
         }
-        if (params.getQueryCreated() != null) {
-            if(params.isCreatedAfter()) {
-                conditions.add("metadata.creation_time > ?");
+        if (params.getQueryCreated() != null && !params.getQueryCreated().isEmpty()) {
+            for(int i = 0; i < params.getQueryCreated().size(); i++) {
+                List<FileTime> created = params.getQueryCreated().get(i);
+                List<Character> signs = params.getQueryCreatedSigns().get(i);
+                List<String> orConditions = new ArrayList<>();
+                for(int j = 0; j < created.size(); j++) {
+                    orConditions.add("metadata.creation_time " + signs.get(j) + " ?");
+                    parameters.add(toTimestamp(created.get(j)));
+                }
+                conditions.add(" (" + orConditions.stream().collect(Collectors.joining(" OR ")) + ") ");
             }
-            else{
-                conditions.add("metadata.creation_time < ?");
-            }
-            parameters.add(toTimestamp(params.getQueryCreated()));
         }
-        if (params.getQueryLastModified() != null) {
-            if(params.isLastModifiedAfter()) {
-                conditions.add("metadata.last_modified_time > ?");
+        if (params.getQueryLastModified() != null && !params.getQueryLastModified().isEmpty()) {
+            for(int i = 0; i < params.getQueryLastModified().size(); i++) {
+                List<FileTime> lastModified = params.getQueryLastModified().get(i);
+                List<Character> signs = params.getQueryLastModifiedSigns().get(i);
+                List<String> orConditions = new ArrayList<>();
+                for(int j = 0; j < lastModified.size(); j++) {
+                    orConditions.add("metadata.last_modified_time " + signs.get(j) + " ?");
+                    parameters.add(toTimestamp(lastModified.get(j)));
+                }
+                conditions.add(" (" + orConditions.stream().collect(Collectors.joining(" OR ")) + ") ");
             }
-            else{
-                conditions.add("metadata.last_modified_time < ?");
-            }
-            parameters.add(toTimestamp(params.getQueryLastModified()));
         }
     }
 
@@ -116,7 +135,12 @@ public class QueryBuilder {
         }
         if (params.getQueryContent() != null && !params.getQueryContent().isEmpty()) {
             conditions.add("content_info.searchable_content @@ q.query");
-            parameters.add(params.getQueryContent());
+
+            List<String> orConditions = new ArrayList<>();
+            for(List<String> orContent: params.getQueryContent()){
+                orConditions.add(" (" + orContent.stream().collect(Collectors.joining(" | ")) + ") ");
+            }
+            parameters.add(orConditions.stream().collect(Collectors.joining(" & ")));
         }
     }
 
