@@ -1,8 +1,7 @@
-package org.example;
+package org.example.parser;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.model.preview.FilePreview;
 import org.example.model.preview.TextualFilePreview;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.File;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,13 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ParsingTest {
+public class ParserTest {
     @Autowired
     private MockMvc mvc;
 
     @BeforeEach
     void index() throws Exception {
-        String path = "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/test_data";
+        String path = "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data";
 
         ///clean root dirs
         mvc.perform(post("/post_root_directory_rules")
@@ -60,7 +58,7 @@ public class ParsingTest {
 
     @Test
     void simpleParser() throws Exception {
-        String searchRequest = "path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/test_data content=main";
+        String searchRequest = "path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data content=main";
 
         MvcResult result = mvc.perform(post("/search")
                 .contentType(MediaType.TEXT_PLAIN)
@@ -121,7 +119,7 @@ public class ParsingTest {
 
     @Test
     void andOrParser() throws Exception {
-        String searchRequest = "path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/test_data content=main|ana content=\"lorem ipsum\"";
+        String searchRequest = "path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data content=main|ana content=\"lorem ipsum\"";
 
         MvcResult result = mvc.perform(post("/search")
                         .contentType(MediaType.TEXT_PLAIN)
@@ -146,7 +144,7 @@ public class ParsingTest {
     @Test
     void difficultParser1() throws Exception{
         String searchRequest = new StringBuilder()
-                .append("path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/test_data ")
+                .append("path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data ")
                 .append("content=main|ana ")
                 .append("content=\"lorem ipsum\" ")
                 .append("content=\"inca  niste   content\" ")
@@ -180,7 +178,7 @@ public class ParsingTest {
     @Test
     void difficultParser2() throws Exception{
         String searchRequest = new StringBuilder()
-                .append("path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/test_data ")
+                .append("path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data ")
                 .append("content=main|ana ")
                 .append("content=\"lorem ipsum\"|function|mere ")
                 .append("extension=txt ")
