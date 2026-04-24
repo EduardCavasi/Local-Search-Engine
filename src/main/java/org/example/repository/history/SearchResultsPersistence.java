@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class SearchResultsPersistence {
@@ -25,7 +25,7 @@ public class SearchResultsPersistence {
             "TRUNCATE TABLE search_result_history";
 
     private static final String GET_TOP_SEARCHES =
-            "SELECT file_path " +
+            "SELECT file_path, apparitions " +
                     "FROM search_result_history " +
                     "ORDER BY apparitions DESC " +
                     "LIMIT ?";
@@ -63,8 +63,8 @@ public class SearchResultsPersistence {
         logger.info("Deleted all history results");
     }
 
-    public List<String> getTopEntries(int nrResults) {
-        List<String> results = new ArrayList<>();
+    public Map<String, Integer> getTopEntries(int nrResults) {
+        Map<String, Integer> results = new HashMap<>();
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(GET_TOP_SEARCHES)) {
@@ -73,7 +73,7 @@ public class SearchResultsPersistence {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    results.add(rs.getString("file_path"));
+                    results.put(rs.getString("file_path"), rs.getInt("apparitions"));
                 }
             }
 

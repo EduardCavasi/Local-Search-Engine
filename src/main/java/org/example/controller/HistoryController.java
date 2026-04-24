@@ -40,7 +40,7 @@ public class HistoryController {
     }
 
     @GetMapping("/results/top")
-    public List<String> getTopResults(@RequestParam int top){
+    public Map<String, Integer> getTopResults(@RequestParam int top){
         return searchResultsHistoryService.getTopSearchHistory(top);
     }
     @DeleteMapping("/results")

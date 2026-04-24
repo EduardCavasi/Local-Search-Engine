@@ -31,6 +31,10 @@ public class RankingTest {
 
     @BeforeEach
     void index() throws Exception {
+        mvc.perform(delete("/api/history/requests"))
+                .andExpect(status().isOk());
+        mvc.perform(delete("/api/history/results"))
+                .andExpect(status().isOk());
         String path = "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/ranking/test_data";
 
         ///clean root dirs
@@ -144,6 +148,61 @@ public class RankingTest {
         assertEquals("test1.txt", filePreviews.get(0).getFileName());
         assertEquals("test3.txt", filePreviews.get(1).getFileName());
         assertEquals("test2.txt", filePreviews.get(2).getFileName());
+    }
+
+    @Test
+    void historyRanking() throws Exception{
+        mvc.perform(post("/api/search/ranking_algorithm")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("type=history")
+                )
+                .andExpect(status().isOk());
+
+        ///3 test2 searches
+        mvc.perform(post("/api/search")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("name=test2")
+                )
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/search")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("name=test2")
+                )
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/search")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("name=test2")
+                )
+                .andExpect(status().isOk());
+
+        ///2 test3 searches
+        mvc.perform(post("/api/search")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("name=test3")
+                )
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/search")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("name=test3")
+                )
+                .andExpect(status().isOk());
+
+        MvcResult result = mvc.perform(post("/api/search")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/ranking/test_data")
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String filePreviewsJson = result.getResponse().getContentAsString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<TextualFilePreview> filePreviews = mapper.readValue(filePreviewsJson, new TypeReference<>(){});
+
+        assertEquals(3, filePreviews.size());
+        assertEquals("test2.txt", filePreviews.get(0).getFileName());
+        assertEquals("test3.txt", filePreviews.get(1).getFileName());
+        assertEquals("test1.txt", filePreviews.get(2).getFileName());
     }
 
 }

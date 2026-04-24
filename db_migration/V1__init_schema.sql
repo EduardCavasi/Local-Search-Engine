@@ -92,6 +92,9 @@ create table rank_info
 alter table rank_info
     owner to postgres;
 
+create index rank_info_file_path_index
+    on rank_info (file_path);
+
 create table search_request_history
 (
     id        bigint generated always as identity

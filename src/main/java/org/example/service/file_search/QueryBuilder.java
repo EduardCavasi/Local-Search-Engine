@@ -6,6 +6,7 @@ import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
 import org.example.repository.persistence.RankInfoPersistence;
 import org.example.service.file_search.ranking.CombinedRanking;
+import org.example.service.file_search.ranking.HistoryRanking;
 import org.example.service.file_search.ranking.RankingStrategy;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +53,9 @@ public class QueryBuilder {
             sql.append(" JOIN content_info ON file_info.file_id = content_info.file_id\n");
         }
         sql.append(" JOIN rank_info ON file_info.file_id = rank_info.file_id\n");
+        if(rankingStrategy instanceof HistoryRanking) {
+            sql.append(" LEFT JOIN search_result_history ON rank_info.file_path = search_result_history.file_path\n");
+        }
         if(contentSearchWithQuery){
             sql.append(" CROSS JOIN q\n");
         }

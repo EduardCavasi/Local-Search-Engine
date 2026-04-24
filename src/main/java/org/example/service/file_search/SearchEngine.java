@@ -5,10 +5,7 @@ import org.example.model.preview.FilePreview;
 import org.example.model.search.SearchEvent;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
-import org.example.service.file_search.ranking.AlphabeticRanking;
-import org.example.service.file_search.ranking.CombinedRanking;
-import org.example.service.file_search.ranking.LastModifiedRanking;
-import org.example.service.file_search.ranking.RankingStrategy;
+import org.example.service.file_search.ranking.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -69,6 +66,7 @@ public class SearchEngine {
         switch (type){
             case "alphabetic" -> strategy = new AlphabeticRanking();
             case "last_modified" -> strategy = new LastModifiedRanking();
+            case "history" -> strategy = new HistoryRanking();
             default ->  strategy = new CombinedRanking();
         }
         queryBuilder.setRankingStrategy(strategy);

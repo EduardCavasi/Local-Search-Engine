@@ -6,6 +6,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class SearchResultsHistoryService {
@@ -27,7 +28,7 @@ public class SearchResultsHistoryService {
         persistence.deleteAll();
     }
 
-    public List<String> getTopSearchHistory(int nrResults) {
+    public Map<String, Integer> getTopSearchHistory(int nrResults) {
         return persistence.getTopEntries(nrResults);
     }
 }
