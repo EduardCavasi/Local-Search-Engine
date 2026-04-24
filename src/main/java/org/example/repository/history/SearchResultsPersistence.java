@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -64,7 +65,7 @@ public class SearchResultsPersistence {
     }
 
     public Map<String, Integer> getTopEntries(int nrResults) {
-        Map<String, Integer> results = new HashMap<>();
+        Map<String, Integer> results = new LinkedHashMap<>();
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(GET_TOP_SEARCHES)) {

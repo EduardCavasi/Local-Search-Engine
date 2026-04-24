@@ -6,10 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class SearchRequestPersistence{
@@ -58,7 +55,7 @@ public class SearchRequestPersistence{
     }
 
     public Map<String, Long> getTopEntries(int nrResults) {
-        Map<String, Long> entries = new HashMap<>();
+        Map<String, Long> entries = new LinkedHashMap<>();
         try(Connection conn = dataSource.getConnection();
             PreparedStatement stmt = conn.prepareStatement(GET_TOP_SEARCHES);
         ){
