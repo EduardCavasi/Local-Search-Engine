@@ -16,6 +16,7 @@ public class SearchRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(SearchRequestParser.class);
     public SearchParams parse(String searchRequest) {
         SearchParams searchParams = new SearchParams();
+        searchParams.setSearchRequest(searchRequest);
         ///spit on spaces that aren t inside " "
         String[] qualifierAndValues = searchRequest.trim().split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
         try {

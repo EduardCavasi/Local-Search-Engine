@@ -2,6 +2,7 @@ package org.example.model.search;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.nio.file.attribute.FileTime;
@@ -20,6 +21,9 @@ import java.util.List;
 @Getter
 @ToString
 public class SearchParams {
+    @Setter
+    private String searchRequest;
+
     private List<String> queryFileName;
     private List<String> queryFileExtension;
     private List<String> queryFilePath;

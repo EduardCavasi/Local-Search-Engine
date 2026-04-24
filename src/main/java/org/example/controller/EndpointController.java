@@ -8,6 +8,8 @@ import org.example.service.file_save.IndexingService;
 import org.example.service.file_save.IndexingStats;
 import org.example.service.file_search.SearchEngine;
 import org.example.service.file_search.SearchRequestParser;
+import org.example.service.file_search.history.SearchRequestHistoryService;
+import org.example.service.file_search.history.SearchResultsHistoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**Controller class
@@ -30,12 +33,16 @@ public class EndpointController {
     private final EngineRules engineRules;
     private final IndexingStats indexingStats;
     private final SearchRequestParser searchRequestParser;
-    public EndpointController(IndexingService indexingService, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats, SearchRequestParser searchRequestParser) {
+    private final SearchRequestHistoryService searchRequestHistoryService;
+    private final SearchResultsHistoryService searchResultsHistoryService;
+    public EndpointController(IndexingService indexingService, SearchEngine searchEngine, EngineRules engineRules, IndexingStats indexingStats, SearchRequestParser searchRequestParser, SearchRequestHistoryService searchRequestHistoryService, SearchResultsHistoryService searchResultsHistoryService) {
         this.searchEngine = searchEngine;
         this.indexingService = indexingService;
         this.engineRules = engineRules;
         this.indexingStats = indexingStats;
-        this.searchRequestParser = new SearchRequestParser();
+        this.searchRequestParser = searchRequestParser;
+        this.searchRequestHistoryService = searchRequestHistoryService;
+        this.searchResultsHistoryService = searchResultsHistoryService;
     }
 
     /**endpoint for starting indexing*/
@@ -133,5 +140,32 @@ public class EndpointController {
     @PostMapping("/modify_ranking_algorithm")
     public void modifyRankingAlgorithm(@RequestParam String type){
         searchEngine.modifyRankingAlgorithm(type);
+    }
+
+    @DeleteMapping("/delete_request_history")
+    public void deleteRequestHistory(){
+        searchRequestHistoryService.deleteAllSearchHistory();
+        logger.info("Deleted request history");
+    }
+
+    @DeleteMapping("/delete_result_history")
+    public void deleteResultHistory(){
+        searchResultsHistoryService.deleteAllSearchHistory();
+        logger.info("Deleted result history");
+    }
+
+    @GetMapping("/get_top_requests")
+    public Map<String, Long> getTopRequests(@RequestParam int top){
+        return searchRequestHistoryService.getTopSearchHistory(top);
+    }
+
+    @GetMapping("/get_top_results")
+    public List<String> getTopResults(@RequestParam int top){
+        return searchResultsHistoryService.getTopSearchHistory(top);
+    }
+
+    @GetMapping("/get_search_suggestions")
+    public List<String> getSearchSuggestions(@RequestParam int top, @RequestParam String query){
+        return searchRequestHistoryService.getTopSearchSuggestions(top, query);
     }
 }

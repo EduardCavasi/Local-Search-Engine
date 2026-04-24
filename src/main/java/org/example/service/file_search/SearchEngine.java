@@ -2,6 +2,7 @@ package org.example.service.file_search;
 
 import org.example.database.IDataSource;
 import org.example.model.preview.FilePreview;
+import org.example.model.search.SearchEvent;
 import org.example.model.search.SearchParams;
 import org.example.model.search.SearchQuery;
 import org.example.service.file_search.ranking.AlphabeticRanking;
@@ -10,9 +11,11 @@ import org.example.service.file_search.ranking.LastModifiedRanking;
 import org.example.service.file_search.ranking.RankingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,10 +36,13 @@ public class SearchEngine {
     private final PreviewBuilder previewBuilder;
     private final QueryBuilder queryBuilder;
 
-    public SearchEngine(IDataSource dataSource, PreviewBuilder previewBuilder, QueryBuilder queryBuilder) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public SearchEngine(IDataSource dataSource, PreviewBuilder previewBuilder, QueryBuilder queryBuilder, ApplicationEventPublisher eventPublisher) {
         this.dataSource = dataSource;
         this.previewBuilder = previewBuilder;
         this.queryBuilder = queryBuilder;
+        this.eventPublisher = eventPublisher;
     }
 
     public Optional<List<FilePreview>> executeQuery(SearchParams params) {
@@ -46,7 +52,12 @@ public class SearchEngine {
             query.bindParameters(ps);
             logger.info("Executing query:\n{}", ps);
             ResultSet rs = ps.executeQuery();
-            return Optional.of(previewBuilder.buildPreviews(rs));
+            var previews = previewBuilder.buildPreviews(rs);
+
+            ///notify observers to build search history
+            notifyObservers(params, previews);
+
+            return Optional.of(previews);
         } catch (SQLException e) {
             logger.error("Search failed", e);
         }
@@ -61,5 +72,11 @@ public class SearchEngine {
             default ->  strategy = new CombinedRanking();
         }
         queryBuilder.setRankingStrategy(strategy);
+    }
+
+    private void notifyObservers(SearchParams params, List<FilePreview> previews) {
+        List<String> filePaths = previews.stream().map(FilePreview::getFilePath).toList();
+        SearchEvent event = new SearchEvent(params.getSearchRequest(), filePaths, Timestamp.from(Instant.now()));
+        eventPublisher.publishEvent(event);
     }
 }

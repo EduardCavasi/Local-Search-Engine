@@ -92,6 +92,37 @@ create table rank_info
 alter table rank_info
     owner to postgres;
 
+create table search_request_history
+(
+    id        bigint generated always as identity
+        constraint search_request_history_pk
+            primary key,
+    request   varchar(500) not null,
+    timestamp timestamp
+);
+
+alter table search_request_history
+    owner to postgres;
+
+create index search_request_history_request_index
+    on search_request_history (request);
+
+create table search_result_history
+(
+    id          bigint generated always as identity
+        constraint search_result_history_pk
+            primary key,
+    file_path   varchar(500) not null,
+    timestamp   timestamp,
+    apparitions integer      not null
+);
+
+alter table search_result_history
+    owner to postgres;
+
+create unique index search_result_history_file_path_uindex
+    on search_result_history (file_path);
+
 create function documents_tsvector_trigger() returns trigger
     language plpgsql
 as
