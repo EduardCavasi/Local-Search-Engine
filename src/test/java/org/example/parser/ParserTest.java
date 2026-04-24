@@ -3,6 +3,7 @@ package org.example.parser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.preview.TextualFilePreview;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,7 +32,7 @@ public class ParserTest {
         String path = "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data";
 
         ///clean root dirs
-        mvc.perform(post("/post_root_directory_rules")
+        mvc.perform(post("/api/system/root_directory_rules")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("""
                                 directory=none&type=3
@@ -38,16 +40,16 @@ public class ParserTest {
                 )
                 .andExpect(status().isOk());
 
-        mvc.perform(post("/post_root_directory_rules")
+        mvc.perform(post("/api/system/root_directory_rules")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("directory=" + path + "&type=1")
                 )
                 .andExpect(status().isOk());
 
-        mvc.perform(post("/index"))
+        mvc.perform(post("/api/system/index"))
                 .andExpect(status().isOk());
         ///reset to default root dirs
-        mvc.perform(post("/post_root_directory_rules")
+        mvc.perform(post("/api/system/root_directory_rules")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("""
                                 directory=none&type=0
@@ -56,11 +58,19 @@ public class ParserTest {
                 .andExpect(status().isOk());
     }
 
+    @AfterEach
+    void deleteHistory() throws Exception{
+        mvc.perform(delete("/api/history/requests"))
+                .andExpect(status().isOk());
+        mvc.perform(delete("/api/history/results"))
+                .andExpect(status().isOk());
+    }
+
     @Test
     void simpleParser() throws Exception {
         String searchRequest = "path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data content=main";
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                 .contentType(MediaType.TEXT_PLAIN)
                 .content(searchRequest)
                 )
@@ -83,7 +93,7 @@ public class ParserTest {
     void orParser() throws Exception {
         String searchRequest = "content=main|ana";
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(searchRequest)
                 )
@@ -121,7 +131,7 @@ public class ParserTest {
     void andOrParser() throws Exception {
         String searchRequest = "path=C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/parser/test_data content=main|ana content=\"lorem ipsum\"";
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(searchRequest)
                 )
@@ -155,7 +165,7 @@ public class ParserTest {
                 .append("created=<2026-04-23T10:15:30.123Z|>2026-01-23T10:15:30.123Z")
                 .toString();
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(searchRequest)
                 )
@@ -187,7 +197,7 @@ public class ParserTest {
                 .append("created=<2026-04-23T10:15:30.123Z|>2026-01-23T10:15:30.123Z")
                 .toString();
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(searchRequest)
                 )

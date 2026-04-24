@@ -3,6 +3,8 @@ package org.example.ranking;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.preview.TextualFilePreview;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,7 +34,7 @@ public class RankingTest {
         String path = "C:/polibooks/an3/sem2/software_engineering/project/search_engine_core/src/test/java/org/example/ranking/test_data";
 
         ///clean root dirs
-        mvc.perform(post("/post_root_directory_rules")
+        mvc.perform(post("/api/system/root_directory_rules")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("""
                                 directory=none&type=3
@@ -39,16 +42,16 @@ public class RankingTest {
                 )
                 .andExpect(status().isOk());
 
-        mvc.perform(post("/post_root_directory_rules")
+        mvc.perform(post("/api/system/root_directory_rules")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("directory=" + path + "&type=1")
                 )
                 .andExpect(status().isOk());
 
-        mvc.perform(post("/index"))
+        mvc.perform(post("/api/system/index"))
                 .andExpect(status().isOk());
         ///reset to default root dirs
-        mvc.perform(post("/post_root_directory_rules")
+        mvc.perform(post("/api/system/root_directory_rules")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("""
                                 directory=none&type=0
@@ -57,15 +60,23 @@ public class RankingTest {
                 .andExpect(status().isOk());
     }
 
+    @AfterEach
+    void deleteHistory() throws Exception{
+        mvc.perform(delete("/api/history/requests"))
+                .andExpect(status().isOk());
+        mvc.perform(delete("/api/history/results"))
+                .andExpect(status().isOk());
+    }
+
     @Test
     void alphabeticRanking() throws Exception {
-        mvc.perform(post("/modify_ranking_algorithm")
+        mvc.perform(post("/api/search/ranking_algorithm")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .content("type=alphabetic")
                 )
                 .andExpect(status().isOk());
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content("name=test")
                 )
@@ -85,13 +96,13 @@ public class RankingTest {
 
     @Test
     void lastModifiedRanking() throws Exception {
-        mvc.perform(post("/modify_ranking_algorithm")
+        mvc.perform(post("/api/search/ranking_algorithm")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("type=last_modified")
                 )
                 .andExpect(status().isOk());
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content("name=test")
                 )
@@ -111,13 +122,13 @@ public class RankingTest {
 
     @Test
     void combinedRanking() throws Exception {
-        mvc.perform(post("/modify_ranking_algorithm")
+        mvc.perform(post("/api/search/ranking_algorithm")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("type=combined")
                 )
                 .andExpect(status().isOk());
 
-        MvcResult result = mvc.perform(post("/search")
+        MvcResult result = mvc.perform(post("/api/search")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content("name=test content=first|second|third")
                 )
@@ -134,4 +145,5 @@ public class RankingTest {
         assertEquals("test3.txt", filePreviews.get(1).getFileName());
         assertEquals("test2.txt", filePreviews.get(2).getFileName());
     }
+
 }
