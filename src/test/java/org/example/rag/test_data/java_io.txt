@@ -1,0 +1,5 @@
+Java provides multiple ways to read files efficiently. The most common modern approach is using Files.readString or Files.lines from the NIO package.
+
+BufferedReader is useful when reading large files line by line.
+
+File I/O operations can throw IOException, so proper exception handling is required.

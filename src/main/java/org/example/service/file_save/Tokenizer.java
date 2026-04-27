@@ -66,7 +66,7 @@ public class Tokenizer {
         return new TextualPayload(content, chunks);
     }
 
-    private float[] getEmbedding(String sentence) throws TranslateException {
+    public float[] getEmbedding(String sentence) throws TranslateException {
         return predictor.predict(sentence);
     }
 }

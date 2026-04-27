@@ -1,0 +1,5 @@
+Machine learning models transform input data into feature vectors.
+
+Similarity between vectors can be computed using cosine distance or euclidean distance.
+
+Embeddings are dense vector representations of text used in NLP tasks.

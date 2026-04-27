@@ -1,0 +1,5 @@
+A retrieval augmented generation (RAG) system combines vector search with a language model.
+
+Documents are split into chunks, embedded into vectors, and stored in a vector database such as pgvector.
+
+At query time, the system retrieves the most semantically similar chunks using cosine similarity.

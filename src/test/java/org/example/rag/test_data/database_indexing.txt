@@ -1,0 +1,5 @@
+Indexing improves database query performance.
+
+In vector databases, Approximate Nearest Neighbor (ANN) indexes like HNSW are used to speed up similarity search.
+
+PostgreSQL supports vector indexing using the pgvector extension.
