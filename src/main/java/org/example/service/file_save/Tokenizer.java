@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -47,18 +46,16 @@ public class Tokenizer {
             int cur_chunk_size = 0;
             StringBuilder cur_sentence = new StringBuilder();
             for (String sentence : sentences) {
-                if(cur_chunk_size < MIN_CHUNK_SIZE) {
-                    cur_chunk_size += sentence.split("\\s+").length;
-                    cur_sentence.append(sentence).append(".");
-                }
-                else {
-                    chunks.add(new Chunk(filePath.toString(), cur_sentence.toString(), getEmbedding(sentence)));
+                cur_chunk_size += sentence.split("\\s+").length;
+                cur_sentence.append(sentence).append(".");
+                if(cur_chunk_size > MIN_CHUNK_SIZE) {
+                    chunks.add(new Chunk(filePath.toString(), cur_sentence.toString(), getEmbedding(cur_sentence.toString())));
                     cur_chunk_size = 0;
                     cur_sentence = new StringBuilder();
                 }
             }
-            if(cur_chunk_size < MIN_CHUNK_SIZE) {
-                chunks.add(new Chunk(filePath.toString(), cur_sentence.toString(), getEmbedding(sentences[0])));
+            if(cur_chunk_size < MIN_CHUNK_SIZE && !cur_sentence.isEmpty()) {
+                chunks.add(new Chunk(filePath.toString(), cur_sentence.toString(), getEmbedding(cur_sentence.toString())));
             }
         } catch (IOException | TranslateException e) {
             logger.warn("Could not tokenize file {}!", filePath, e);
