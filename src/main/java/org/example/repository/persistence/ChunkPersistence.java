@@ -1,11 +1,13 @@
 package org.example.repository.persistence;
 
 import org.example.model.file.Chunk;
+import org.postgresql.util.PGobject;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +24,12 @@ public class ChunkPersistence implements IPersistence<Long, List<Chunk>> {
                 stmt.setLong(1, id);
                 stmt.setString(2, chunk.getFilePath());
                 stmt.setString(3, chunk.getContent());
-                stmt.setObject(4, chunk.getEmbedding());
+
+                String chunkEmbedding = Arrays.toString(chunk.getEmbedding()).replace(" ", "");
+                PGobject pgVector = new PGobject();
+                pgVector.setType("vector");
+                pgVector.setValue(chunkEmbedding);
+                stmt.setObject(4, pgVector);
                 stmt.addBatch();
             }
             stmt.executeBatch();

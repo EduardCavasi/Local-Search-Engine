@@ -16,13 +16,16 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 @Component
 public class Tokenizer {
     private static final Logger logger = LoggerFactory.getLogger(Tokenizer.class);
-    private static final Integer MIN_CHUNK_SIZE = 400;
+    private static final Integer MIN_CHUNK_SIZE = 500;
+    private static final Integer CHUNK_OVERLAP = 50;
     private static final Integer MAX_FILE_SIZE = 10 * 1024 * 1024;
     private final Predictor<String, float[]> predictor;
     public Tokenizer() throws ModelNotFoundException, MalformedModelException, IOException {
@@ -41,25 +44,67 @@ public class Tokenizer {
         List<Chunk> chunks = new ArrayList<>();
         String content = "";
         try {
-            content = Files.readString(filePath);
-            if(content.length() > MAX_FILE_SIZE){
+            if (Files.size(filePath) > MAX_FILE_SIZE) {
                 return new TextualPayload("", List.of());
             }
-            String[] sentences = content.split("[.!?;:\n]");
-            int cur_chunk_size = 0;
-            StringBuilder cur_sentence = new StringBuilder();
+            content = Files.readString(filePath);
+
+            String[] sentences = content.split("(?<=[.!?;:\\n])\\s+|\\n{2,}");
+
+            int wordCount = 0;
+            StringBuilder chunk = new StringBuilder();
+            Deque<String> overlapBuffer = new ArrayDeque<>();
+
             for (String sentence : sentences) {
-                cur_chunk_size += sentence.split("\\s+").length;
-                cur_sentence.append(sentence).append(".");
-                if(cur_chunk_size > MIN_CHUNK_SIZE) {
-                    chunks.add(new Chunk(filePath.toString(), cur_sentence.toString(), getEmbedding(cur_sentence.toString())));
-                    cur_chunk_size = 0;
-                    cur_sentence = new StringBuilder();
+                String trimmed = sentence.trim();
+                if (trimmed.isEmpty()) continue;
+
+                int sentenceWords = trimmed.split("\\s+").length;
+                wordCount += sentenceWords;
+                chunk.append(trimmed).append(" ");
+
+                overlapBuffer.addLast(trimmed);
+
+                if (wordCount >= MIN_CHUNK_SIZE) {
+                    String chunkText = chunk.toString().trim();
+                    chunks.add(new Chunk(
+                            filePath.toString(),
+                            chunkText,
+                            getEmbedding(chunkText)
+                    ));
+
+                    chunk = new StringBuilder();
+                    wordCount = 0;
+
+                    Deque<String> nextBuffer = new ArrayDeque<>();
+                    int overlapWords = 0;
+
+                    String[] buffered = overlapBuffer.toArray(new String[0]);
+                    for (int i = buffered.length - 1; i >= 0 && overlapWords < CHUNK_OVERLAP; i--) {
+                        int w = buffered[i].split("\\s+").length;
+                        if (overlapWords + w <= CHUNK_OVERLAP) {
+                            nextBuffer.addFirst(buffered[i]);
+                            overlapWords += w;
+                        }
+                    }
+
+                    for (String s : nextBuffer) {
+                        chunk.append(s).append(" ");
+                        wordCount += s.split("\\s+").length;
+                    }
+                    overlapBuffer = nextBuffer;
                 }
             }
-            if(cur_chunk_size < MIN_CHUNK_SIZE && !cur_sentence.isEmpty()) {
-                chunks.add(new Chunk(filePath.toString(), cur_sentence.toString(), getEmbedding(cur_sentence.toString())));
+
+            if (chunk.length() > 10) {
+                String chunkText = chunk.toString().trim();
+                chunks.add(new Chunk(
+                        filePath.toString(),
+                        chunkText,
+                        getEmbedding(chunkText)
+                ));
             }
+
         } catch (IOException | TranslateException e) {
             logger.warn("Could not tokenize file {}!", filePath, e);
         }

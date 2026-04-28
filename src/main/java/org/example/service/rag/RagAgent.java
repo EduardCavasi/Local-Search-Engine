@@ -104,12 +104,10 @@ public class RagAgent {
         float[] queryEmbedding = generateEmbedding(query);
         List<String> chunkContents = new ArrayList<>();
         if(queryEmbedding != null) {
-            chunkContents = chunkRepository.retrieveTopChunks(queryEmbedding, 3);
+            chunkContents = chunkRepository.retrieveTopChunks(queryEmbedding, 5);
         }
-        int i = 0;
         for(String chunkContent: chunkContents){
-            ++i;
-            context.append("CONTEXT ").append(i).append(":\n").append(chunkContent).append("\n\n\n");
+            context.append(chunkContent).append("\n\n\n");
         }
         return context.toString();
     }
