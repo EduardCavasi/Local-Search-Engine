@@ -13,8 +13,14 @@ public class RagController {
         this.ragAgent = ragAgent;
     }
 
-    @PostMapping
-    public String getResponse(@RequestBody String request) {
+    @GetMapping("prompt")
+    public String getPrompt(@RequestBody String request) {
         return ragAgent.getPrompt(request);
     }
+
+    @GetMapping("llm_response")
+    public String getResponse(@RequestBody String request) {
+        return ragAgent.getLlmAnswer(request);
+    }
+
 }
