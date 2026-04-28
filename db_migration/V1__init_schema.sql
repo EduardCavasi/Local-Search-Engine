@@ -151,7 +151,7 @@ create table chunk_info
         constraint chunk_info___fk
             references file_info
             on delete cascade,
-    embedding vector(768)
+    embedding vector(384)
 );
 
 alter table chunk_info
