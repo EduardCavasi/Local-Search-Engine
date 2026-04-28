@@ -22,9 +22,9 @@ import java.util.List;
 @Component
 public class Tokenizer {
     private static final Logger logger = LoggerFactory.getLogger(Tokenizer.class);
-    private static final Integer MIN_CHUNK_SIZE = 150;
+    private static final Integer MIN_CHUNK_SIZE = 400;
+    private static final Integer MAX_FILE_SIZE = 10 * 1024 * 1024;
     private final Predictor<String, float[]> predictor;
-
     public Tokenizer() throws ModelNotFoundException, MalformedModelException, IOException {
         Criteria<String, float[]> criteria =
                 Criteria.builder()
@@ -42,6 +42,9 @@ public class Tokenizer {
         String content = "";
         try {
             content = Files.readString(filePath);
+            if(content.length() > MAX_FILE_SIZE){
+                return new TextualPayload("", List.of());
+            }
             String[] sentences = content.split("[.!?;:\n]");
             int cur_chunk_size = 0;
             StringBuilder cur_sentence = new StringBuilder();
