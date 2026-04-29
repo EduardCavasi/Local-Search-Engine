@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 
 /**
  * FileInfo object for TEXTUAL files
@@ -20,10 +19,20 @@ import java.util.List;
 @Setter
 public class TextualFileInfo extends FileInfo {
     private final Logger logger = LoggerFactory.getLogger(TextualFileInfo.class);
-    private TextualPayload textualPayload;
-    public TextualFileInfo(File file, BasicFileAttributes attr, Long scanId, TextualPayload textualPayload) {
+    private String content;
+    public TextualFileInfo(File file, BasicFileAttributes attr, Long scanId) {
         super(file, attr, scanId);
-        this.textualPayload = textualPayload;
+        this.content = this.readContent(file);
         super.setFileType(FileType.TEXTUAL_FILE);
+    }
+    private String readContent(File file) {
+        String content = "";
+        try {
+            content = Files.readString(file.toPath());
+        }
+        catch (IOException e) {
+            logger.warn("Unable to read file: {}", file.getAbsolutePath());
+        }
+        return content;
     }
 }

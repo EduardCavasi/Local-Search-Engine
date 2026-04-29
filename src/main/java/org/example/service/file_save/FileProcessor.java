@@ -1,7 +1,9 @@
 package org.example.service.file_save;
 
 import org.apache.tika.Tika;
-import org.example.model.file.*;
+import org.example.model.file.FileInfo;
+import org.example.model.file.FileType;
+import org.example.model.file.TextualFileInfo;
 import org.example.repository.IRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,14 +26,12 @@ public class FileProcessor {
     private final Map<FileType, IRepository<Long, ? extends FileInfo>> repositories;
     private final FileSaver fileSaver;
     private final Tika tika;
-    private final Tokenizer tokenizer;
 
-    public FileProcessor(IRepository<Long, TextualFileInfo> textualFileRepository, FileSaver fileSaver, Tika tika, Tokenizer tokenizer) {
+    public FileProcessor(IRepository<Long, TextualFileInfo> textualFileRepository, FileSaver fileSaver, Tika tika) {
         this.repositories = new HashMap<>();
         this.repositories.put(FileType.TEXTUAL_FILE, textualFileRepository);
         this.fileSaver = fileSaver;
         this.tika = tika;
-        this.tokenizer = tokenizer;
     }
 
     /**deletes all files present in DB but not in file system*/
@@ -50,8 +49,7 @@ public class FileProcessor {
             }
             switch (fileType) {
                 case TEXTUAL_FILE -> {
-                    TextualPayload textualPayload = tokenizer.tokenize(file);
-                    TextualFileInfo textualFileInfo = new TextualFileInfo(file.toFile(), attrs, scanId, textualPayload);
+                    TextualFileInfo textualFileInfo = new TextualFileInfo(file.toFile(), attrs, scanId);
                     @SuppressWarnings("unchecked")
                     IRepository<Long, TextualFileInfo> repo =
                             (IRepository<Long, TextualFileInfo>) repositories.get(FileType.TEXTUAL_FILE);
